@@ -1,0 +1,36 @@
+# Binaries and build outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/toolruntime
+bin/
+build/
+dist/
+coverage/
+coverage.*
+
+# Go workspace / vendor
+go.work
+go.work.sum
+vendor/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# OS / editor noise
+.DS_Store
+.idea/
+.vscode/
+*~
+~
+
