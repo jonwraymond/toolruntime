@@ -95,6 +95,16 @@ func main() {
 - For production, plan on container isolation and then stronger runtimes
   (gVisor/Kata/microVM).
 
+## Version compatibility (current tags)
+
+- `toolmodel`: `v0.1.0`
+- `toolindex`: `v0.1.1`
+- `tooldocs`: `v0.1.1`
+- `toolrun`: `v0.1.0`
+- `toolcode`: `v0.1.0`
+- `toolruntime`: `v0.1.0`
+- `metatools-mcp`: `v0.1.2`
+
 ## CI
 
 CI runs:
