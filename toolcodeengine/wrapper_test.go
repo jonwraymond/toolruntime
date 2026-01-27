@@ -178,11 +178,11 @@ func (e *errTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, er
 	return nil, e.err
 }
 
-func (e *errTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
+func (e *errTools) RunTool(_ context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return toolrun.RunResult{}, e.err
 }
 
-func (e *errTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (e *errTools) RunChain(_ context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, e.err
 }
 

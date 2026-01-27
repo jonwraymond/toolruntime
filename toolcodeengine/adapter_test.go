@@ -20,7 +20,7 @@ type mockRuntime struct {
 	capturedReq toolruntime.ExecuteRequest
 }
 
-func (m *mockRuntime) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (m *mockRuntime) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	m.capturedReq = req
 	if m.err != nil {
 		return toolruntime.ExecuteResult{}, m.err
