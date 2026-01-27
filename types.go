@@ -267,8 +267,8 @@ type ToolGateway interface {
 	// DescribeTool returns documentation for a tool at the specified detail level.
 	DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error)
 
-	// ListToolExamples returns up to max usage examples for a tool.
-	ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error)
+	// ListToolExamples returns up to maxExamples usage examples for a tool.
+	ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error)
 
 	// RunTool executes a single tool and returns the result.
 	RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error)

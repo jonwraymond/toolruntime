@@ -148,14 +148,14 @@ func (g *Gateway) DescribeTool(ctx context.Context, id string, level tooldocs.De
 }
 
 // ListToolExamples sends a list examples request over the connection.
-func (g *Gateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (g *Gateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
 	if g.closed.Load() {
 		return nil, ErrConnectionClosed
 	}
 
 	resp, err := g.request(ctx, MsgListToolExamples, map[string]any{
 		"id":  id,
-		"max": max,
+		"max": maxExamples,
 	})
 	if err != nil {
 		return nil, err

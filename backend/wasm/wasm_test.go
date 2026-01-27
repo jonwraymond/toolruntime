@@ -8,19 +8,19 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
-func TestWASMBackendImplementsInterface(t *testing.T) {
+func TestBackendImplementsInterface(t *testing.T) {
 	t.Helper()
-	var _ toolruntime.Backend = (*WASMBackend)(nil)
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestWASMBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendWASM {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendWASM)
 	}
 }
 
-func TestWASMBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.runtime != "wazero" {
 		t.Errorf("runtime = %q, want %q", b.runtime, "wazero")
@@ -30,7 +30,7 @@ func TestWASMBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestWASMBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 	ctx := context.Background()
 	req := toolruntime.ExecuteRequest{

@@ -97,8 +97,8 @@ func (r *recordingGateway) DescribeTool(ctx context.Context, id string, level to
 	return r.wrapped.DescribeTool(ctx, id, level)
 }
 
-func (r *recordingGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
-	return r.wrapped.ListToolExamples(ctx, id, max)
+func (r *recordingGateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
+	return r.wrapped.ListToolExamples(ctx, id, maxExamples)
 }
 
 func (r *recordingGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
@@ -128,7 +128,7 @@ func (e *errGateway) DescribeTool(ctx context.Context, id string, level tooldocs
 	return tooldocs.ToolDoc{}, e.err
 }
 
-func (e *errGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (e *errGateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
 	return nil, e.err
 }
 
@@ -173,10 +173,10 @@ func (d *delayGateway) DescribeTool(ctx context.Context, id string, level tooldo
 	}
 }
 
-func (d *delayGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (d *delayGateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
 	select {
 	case <-time.After(d.delay):
-		return d.wrapped.ListToolExamples(ctx, id, max)
+		return d.wrapped.ListToolExamples(ctx, id, maxExamples)
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	}

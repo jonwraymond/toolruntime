@@ -40,6 +40,7 @@ func (m *mockBackend) Execute(ctx context.Context, req ExecuteRequest) (ExecuteR
 
 // Test that mockBackend satisfies the interface
 func TestMockBackendImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ Backend = (*mockBackend)(nil)
 }
 

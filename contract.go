@@ -45,7 +45,7 @@ func RunGatewayContractTests(t *testing.T, contract GatewayContract) {
 			}
 		})
 
-		t.Run("respects context cancellation", func(t *testing.T) {
+		t.Run("respects context cancellation", func(_ *testing.T) {
 			gw := contract.NewGateway()
 			ctx, cancel := context.WithCancel(context.Background())
 			cancel() // Cancel immediately
@@ -82,7 +82,7 @@ func RunGatewayContractTests(t *testing.T, contract GatewayContract) {
 	})
 
 	t.Run("RunTool", func(t *testing.T) {
-		t.Run("propagates context cancellation", func(t *testing.T) {
+		t.Run("propagates context cancellation", func(_ *testing.T) {
 			gw := contract.NewGateway()
 			ctx, cancel := context.WithCancel(context.Background())
 			cancel() // Cancel immediately

@@ -1,4 +1,4 @@
-// Package wasm provides a WASMBackend that executes code compiled to WebAssembly.
+// Package wasm provides a backend that executes code compiled to WebAssembly.
 // Provides strong in-process isolation; requires constrained SDK surface.
 package wasm
 
@@ -33,7 +33,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a WASMBackend.
+// Config configures a WASM backend.
 type Config struct {
 	// Runtime specifies the WASM runtime to use.
 	// Options: wasmtime, wasmer, wazero
@@ -55,8 +55,8 @@ type Config struct {
 	Logger Logger
 }
 
-// WASMBackend executes code compiled to WebAssembly.
-type WASMBackend struct {
+// Backend executes code compiled to WebAssembly.
+type Backend struct {
 	runtime              string
 	maxMemoryPages       int
 	enableWASI           bool
@@ -64,8 +64,8 @@ type WASMBackend struct {
 	logger               Logger
 }
 
-// New creates a new WASMBackend with the given configuration.
-func New(cfg Config) *WASMBackend {
+// New creates a new WASM backend with the given configuration.
+func New(cfg Config) *Backend {
 	runtime := cfg.Runtime
 	if runtime == "" {
 		runtime = "wazero"
@@ -76,7 +76,7 @@ func New(cfg Config) *WASMBackend {
 		maxMemoryPages = 256 // 16MB
 	}
 
-	return &WASMBackend{
+	return &Backend{
 		runtime:              runtime,
 		maxMemoryPages:       maxMemoryPages,
 		enableWASI:           cfg.EnableWASI,
@@ -86,12 +86,12 @@ func New(cfg Config) *WASMBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *WASMBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendWASM
 }
 
 // Execute runs code compiled to WebAssembly.
-func (b *WASMBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -113,4 +113,4 @@ func (b *WASMBackend) Execute(ctx context.Context, req toolruntime.ExecuteReques
 	return result, fmt.Errorf("%w: wasm backend not fully implemented", ErrWASMRuntimeNotAvailable)
 }
 
-var _ toolruntime.Backend = (*WASMBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)
