@@ -13,6 +13,7 @@ import (
 
 // Test that mockToolGateway satisfies the interface
 func TestMockToolGatewayImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ ToolGateway = (*mockToolGateway)(nil)
 }
 
@@ -116,27 +117,27 @@ type errGateway struct {
 	err error
 }
 
-func (e *errGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (e *errGateway) SearchTools(_ context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return nil, e.err
 }
 
-func (e *errGateway) ListNamespaces(ctx context.Context) ([]string, error) {
+func (e *errGateway) ListNamespaces(_ context.Context) ([]string, error) {
 	return nil, e.err
 }
 
-func (e *errGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (e *errGateway) DescribeTool(_ context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, e.err
 }
 
-func (e *errGateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
+func (e *errGateway) ListToolExamples(_ context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, e.err
 }
 
-func (e *errGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (e *errGateway) RunTool(_ context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return toolrun.RunResult{}, e.err
 }
 
-func (e *errGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (e *errGateway) RunChain(_ context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, e.err
 }
 

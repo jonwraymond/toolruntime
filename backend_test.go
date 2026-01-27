@@ -73,7 +73,7 @@ func (e *errBackend) Kind() BackendKind {
 	return e.kind
 }
 
-func (e *errBackend) Execute(ctx context.Context, req ExecuteRequest) (ExecuteResult, error) {
+func (e *errBackend) Execute(_ context.Context, req ExecuteRequest) (ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return ExecuteResult{}, err
 	}

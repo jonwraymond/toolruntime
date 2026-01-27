@@ -243,6 +243,7 @@ func TestDefaultRuntimeDefaultProfile(t *testing.T) {
 
 // Test Runtime interface satisfaction
 func TestDefaultRuntimeImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ Runtime = (*DefaultRuntime)(nil)
 }
 

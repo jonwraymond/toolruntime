@@ -44,7 +44,7 @@ func (m *mockIndex) GetAllBackends(_ string) ([]toolmodel.ToolBackend, error) {
 	return nil, nil
 }
 
-func (m *mockIndex) Search(query string, limit int) ([]toolindex.Summary, error) {
+func (m *mockIndex) Search(_ string, limit int) ([]toolindex.Summary, error) {
 	if m.searchErr != nil {
 		return nil, m.searchErr
 	}
@@ -66,7 +66,7 @@ type mockDocs struct {
 	examplesErr error
 }
 
-func (m *mockDocs) DescribeTool(id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockDocs) DescribeTool(id string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	if m.descErr != nil {
 		return tooldocs.ToolDoc{}, m.descErr
 	}
@@ -99,7 +99,7 @@ type mockRunner struct {
 	mu           sync.Mutex
 }
 
-func (m *mockRunner) Run(ctx context.Context, toolID string, args map[string]any) (toolrun.RunResult, error) {
+func (m *mockRunner) Run(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	m.mu.Lock()
 	m.callCount++
 	m.mu.Unlock()
@@ -113,7 +113,7 @@ func (m *mockRunner) Run(ctx context.Context, toolID string, args map[string]any
 	return m.runResult, nil
 }
 
-func (m *mockRunner) RunStream(ctx context.Context, toolID string, args map[string]any) (<-chan toolrun.StreamEvent, error) {
+func (m *mockRunner) RunStream(_ context.Context, _ string, _ map[string]any) (<-chan toolrun.StreamEvent, error) {
 	return nil, errors.New("streaming not supported")
 }
 
@@ -425,6 +425,7 @@ func TestGatewayChainStepLimits(t *testing.T) {
 }
 
 func TestGatewayThreadSafety(t *testing.T) {
+	t.Helper()
 	runner := &mockRunner{}
 	gw := New(Config{
 		Index:  &mockIndex{summaries: []toolindex.Summary{{ID: "test:tool"}}},
