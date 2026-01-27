@@ -68,6 +68,7 @@ func (l *mockLogger) hasWarning(substr string) bool {
 
 // TestBackendImplementsInterface verifies Backend satisfies toolruntime.Backend
 func TestBackendImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.Backend = (*Backend)(nil)
 }
 

@@ -18,22 +18,23 @@ func (m *mockBackend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendDocker
 }
 
-func (m *mockBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (m *mockBackend) Execute(_ context.Context, _ toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	return toolruntime.ExecuteResult{}, nil
 }
 
-func TestTemporalBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*TemporalBackend)(nil)
+func TestBackendImplementsInterface(t *testing.T) {
+	t.Helper()
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestTemporalBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendTemporal {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendTemporal)
 	}
 }
 
-func TestTemporalBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.hostPort != "localhost:7233" {
 		t.Errorf("hostPort = %q, want %q", b.hostPort, "localhost:7233")
@@ -46,7 +47,7 @@ func TestTemporalBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestTemporalBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{
 		SandboxBackend: &mockBackend{},
 	})
@@ -61,7 +62,7 @@ func TestTemporalBackendRequiresGateway(t *testing.T) {
 	}
 }
 
-func TestTemporalBackendRequiresSandboxBackend(t *testing.T) {
+func TestBackendRequiresSandboxBackend(t *testing.T) {
 	b := New(Config{
 		SandboxBackend: nil, // No sandbox backend
 	})
@@ -82,21 +83,21 @@ func TestTemporalBackendRequiresSandboxBackend(t *testing.T) {
 // mockGateway implements toolruntime.ToolGateway for testing
 type mockGateway struct{}
 
-func (m *mockGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (m *mockGateway) SearchTools(ctx context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return nil, nil
 }
 func (m *mockGateway) ListNamespaces(ctx context.Context) ([]string, error) {
 	return nil, nil
 }
-func (m *mockGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockGateway) DescribeTool(ctx context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, nil
 }
-func (m *mockGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (m *mockGateway) ListToolExamples(ctx context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, nil
 }
-func (m *mockGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (m *mockGateway) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return toolrun.RunResult{}, nil
 }
-func (m *mockGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockGateway) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, nil
 }

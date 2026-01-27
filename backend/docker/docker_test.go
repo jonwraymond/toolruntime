@@ -40,6 +40,7 @@ func (m *mockGateway) RunChain(ctx context.Context, _ []toolrun.ChainStep) (tool
 
 // TestBackendImplementsInterface verifies Backend satisfies toolruntime.Backend
 func TestBackendImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.Backend = (*Backend)(nil)
 }
 

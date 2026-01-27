@@ -9,6 +9,7 @@ import (
 )
 
 func TestKubernetesBackendImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.Backend = (*KubernetesBackend)(nil)
 }
 

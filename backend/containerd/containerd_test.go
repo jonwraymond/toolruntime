@@ -8,18 +8,19 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
-func TestContainerdBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*ContainerdBackend)(nil)
+func TestBackendImplementsInterface(t *testing.T) {
+	t.Helper()
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestContainerdBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendContainerd {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendContainerd)
 	}
 }
 
-func TestContainerdBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.imageRef != "toolruntime-sandbox:latest" {
 		t.Errorf("imageRef = %q, want %q", b.imageRef, "toolruntime-sandbox:latest")
@@ -32,7 +33,7 @@ func TestContainerdBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestContainerdBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 	ctx := context.Background()
 	req := toolruntime.ExecuteRequest{

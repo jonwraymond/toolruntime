@@ -14,6 +14,7 @@ import (
 
 // TestWrapToolsImplementsGateway verifies the wrapper satisfies ToolGateway
 func TestWrapToolsImplementsGateway(t *testing.T) {
+	t.Helper()
 	tools := &mockTools{}
 	gw := WrapTools(tools)
 
@@ -160,7 +161,7 @@ type errTools struct {
 	err error
 }
 
-func (e *errTools) SearchTools(query string, limit int) ([]toolindex.Summary, error) {
+func (e *errTools) SearchTools(_ string, _ int) ([]toolindex.Summary, error) {
 	return nil, e.err
 }
 
@@ -168,23 +169,23 @@ func (e *errTools) ListNamespaces() ([]string, error) {
 	return nil, e.err
 }
 
-func (e *errTools) DescribeTool(id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (e *errTools) DescribeTool(_ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, e.err
 }
 
-func (e *errTools) ListToolExamples(id string, max int) ([]tooldocs.ToolExample, error) {
+func (e *errTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, e.err
 }
 
-func (e *errTools) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (e *errTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return toolrun.RunResult{}, e.err
 }
 
-func (e *errTools) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (e *errTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, e.err
 }
 
-func (e *errTools) Println(args ...any) {}
+func (e *errTools) Println(_ ...any) {}
 
 var _ toolcode.Tools = (*errTools)(nil)
 

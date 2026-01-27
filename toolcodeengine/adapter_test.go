@@ -39,7 +39,7 @@ type mockTools struct {
 	stepResults   []toolrun.StepResult
 }
 
-func (m *mockTools) SearchTools(query string, limit int) ([]toolindex.Summary, error) {
+func (m *mockTools) SearchTools(_ string, _ int) ([]toolindex.Summary, error) {
 	return m.searchResults, nil
 }
 
@@ -47,28 +47,29 @@ func (m *mockTools) ListNamespaces() ([]string, error) {
 	return m.namespaces, nil
 }
 
-func (m *mockTools) DescribeTool(id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockTools) DescribeTool(_ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return m.toolDoc, nil
 }
 
-func (m *mockTools) ListToolExamples(id string, max int) ([]tooldocs.ToolExample, error) {
+func (m *mockTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, error) {
 	return m.examples, nil
 }
 
-func (m *mockTools) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (m *mockTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return m.runResult, nil
 }
 
-func (m *mockTools) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return m.chainResult, m.stepResults, nil
 }
 
-func (m *mockTools) Println(args ...any) {
+func (m *mockTools) Println(_ ...any) {
 	// Mock implementation
 }
 
 // TestEngineImplementsInterface verifies Engine satisfies toolcode.Engine
 func TestEngineImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolcode.Engine = (*Engine)(nil)
 }
 

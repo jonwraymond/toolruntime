@@ -9,6 +9,7 @@ import (
 )
 
 func TestWASMBackendImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.Backend = (*WASMBackend)(nil)
 }
 

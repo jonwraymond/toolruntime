@@ -1,4 +1,4 @@
-// Package kata provides a KataBackend that executes code in Kata Containers.
+// Package kata provides a backend that executes code in Kata Containers.
 // Provides VM-level isolation stronger than plain containers.
 package kata
 
@@ -30,7 +30,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a KataBackend.
+// Config configures a Kata backend.
 type Config struct {
 	// RuntimePath is the path to the kata-runtime binary.
 	// Default: kata-runtime (uses PATH)
@@ -51,8 +51,8 @@ type Config struct {
 	Logger Logger
 }
 
-// KataBackend executes code in Kata Containers for VM-level isolation.
-type KataBackend struct {
+// Backend executes code in Kata Containers for VM-level isolation.
+type Backend struct {
 	runtimePath string
 	hypervisor  string
 	kernelPath  string
@@ -60,8 +60,8 @@ type KataBackend struct {
 	logger      Logger
 }
 
-// New creates a new KataBackend with the given configuration.
-func New(cfg Config) *KataBackend {
+// New creates a new Kata backend with the given configuration.
+func New(cfg Config) *Backend {
 	runtimePath := cfg.RuntimePath
 	if runtimePath == "" {
 		runtimePath = "kata-runtime"
@@ -72,7 +72,7 @@ func New(cfg Config) *KataBackend {
 		hypervisor = "qemu"
 	}
 
-	return &KataBackend{
+	return &Backend{
 		runtimePath: runtimePath,
 		hypervisor:  hypervisor,
 		kernelPath:  cfg.KernelPath,
@@ -82,12 +82,12 @@ func New(cfg Config) *KataBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *KataBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendKata
 }
 
 // Execute runs code in a Kata Container with VM-level isolation.
-func (b *KataBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -107,4 +107,4 @@ func (b *KataBackend) Execute(ctx context.Context, req toolruntime.ExecuteReques
 	return result, fmt.Errorf("%w: kata backend not fully implemented", ErrKataNotAvailable)
 }
 
-var _ toolruntime.Backend = (*KataBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

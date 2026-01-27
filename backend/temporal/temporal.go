@@ -1,4 +1,4 @@
-// Package temporal provides a TemporalBackend that treats snippet execution as a Temporal workflow/activity.
+// Package temporal provides a backend that treats snippet execution as a Temporal workflow/activity.
 // Useful for long-running or resumable executions.
 // Note: Temporal is orchestration, not isolation - must compose with sandbox backends.
 package temporal
@@ -34,7 +34,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a TemporalBackend.
+// Config configures a Temporal backend.
 type Config struct {
 	// HostPort is the Temporal server address.
 	// Default: localhost:7233
@@ -61,8 +61,8 @@ type Config struct {
 	Logger Logger
 }
 
-// TemporalBackend executes code as Temporal workflows/activities.
-type TemporalBackend struct {
+// Backend executes code as Temporal workflows/activities.
+type Backend struct {
 	hostPort         string
 	namespace        string
 	taskQueue        string
@@ -71,8 +71,8 @@ type TemporalBackend struct {
 	logger           Logger
 }
 
-// New creates a new TemporalBackend with the given configuration.
-func New(cfg Config) *TemporalBackend {
+// New creates a new Temporal backend with the given configuration.
+func New(cfg Config) *Backend {
 	hostPort := cfg.HostPort
 	if hostPort == "" {
 		hostPort = "localhost:7233"
@@ -93,7 +93,7 @@ func New(cfg Config) *TemporalBackend {
 		workflowIDPrefix = "toolruntime-"
 	}
 
-	return &TemporalBackend{
+	return &Backend{
 		hostPort:         hostPort,
 		namespace:        namespace,
 		taskQueue:        taskQueue,
@@ -104,13 +104,13 @@ func New(cfg Config) *TemporalBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *TemporalBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendTemporal
 }
 
 // Execute runs code as a Temporal workflow.
 // The actual code execution is delegated to the configured sandbox backend.
-func (b *TemporalBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -137,4 +137,4 @@ func (b *TemporalBackend) Execute(ctx context.Context, req toolruntime.ExecuteRe
 	return result, fmt.Errorf("%w: temporal backend not fully implemented", ErrTemporalNotAvailable)
 }
 
-var _ toolruntime.Backend = (*TemporalBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

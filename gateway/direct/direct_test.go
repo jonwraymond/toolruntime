@@ -133,6 +133,7 @@ func (m *mockRunner) RunChain(ctx context.Context, steps []toolrun.ChainStep) (t
 
 // TestDirectGatewayImplementsInterface verifies DirectGateway satisfies ToolGateway
 func TestDirectGatewayImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.ToolGateway = (*DirectGateway)(nil)
 }
 

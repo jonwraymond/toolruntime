@@ -1,4 +1,4 @@
-// Package containerd provides a ContainerdBackend that executes code via containerd.
+// Package containerd provides a backend that executes code via containerd.
 // Similar to Docker but more infrastructure-native for servers/agents already using containerd.
 package containerd
 
@@ -30,7 +30,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a ContainerdBackend.
+// Config configures a containerd backend.
 type Config struct {
 	// ImageRef is the image reference to use for execution.
 	// Default: toolruntime-sandbox:latest
@@ -48,16 +48,16 @@ type Config struct {
 	Logger Logger
 }
 
-// ContainerdBackend executes code via containerd with security isolation.
-type ContainerdBackend struct {
+// Backend executes code via containerd with security isolation.
+type Backend struct {
 	imageRef   string
 	namespace  string
 	socketPath string
 	logger     Logger
 }
 
-// New creates a new ContainerdBackend with the given configuration.
-func New(cfg Config) *ContainerdBackend {
+// New creates a new containerd backend with the given configuration.
+func New(cfg Config) *Backend {
 	imageRef := cfg.ImageRef
 	if imageRef == "" {
 		imageRef = "toolruntime-sandbox:latest"
@@ -73,7 +73,7 @@ func New(cfg Config) *ContainerdBackend {
 		socketPath = "/run/containerd/containerd.sock"
 	}
 
-	return &ContainerdBackend{
+	return &Backend{
 		imageRef:   imageRef,
 		namespace:  namespace,
 		socketPath: socketPath,
@@ -82,12 +82,12 @@ func New(cfg Config) *ContainerdBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *ContainerdBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendContainerd
 }
 
 // Execute runs code via containerd with security isolation.
-func (b *ContainerdBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -108,4 +108,4 @@ func (b *ContainerdBackend) Execute(ctx context.Context, req toolruntime.Execute
 	return result, fmt.Errorf("%w: containerd backend not fully implemented", ErrContainerdNotAvailable)
 }
 
-var _ toolruntime.Backend = (*ContainerdBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

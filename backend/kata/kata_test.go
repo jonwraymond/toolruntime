@@ -8,18 +8,19 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
-func TestKataBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*KataBackend)(nil)
+func TestBackendImplementsInterface(t *testing.T) {
+	t.Helper()
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestKataBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendKata {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendKata)
 	}
 }
 
-func TestKataBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.runtimePath != "kata-runtime" {
 		t.Errorf("runtimePath = %q, want %q", b.runtimePath, "kata-runtime")
@@ -29,7 +30,7 @@ func TestKataBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestKataBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 	ctx := context.Background()
 	req := toolruntime.ExecuteRequest{

@@ -9,6 +9,7 @@ import (
 )
 
 func TestBackendImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.Backend = (*Backend)(nil)
 }
 

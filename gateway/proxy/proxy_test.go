@@ -131,6 +131,7 @@ func (c *autoRespondConnection) Close() error {
 
 // TestGatewayImplementsInterface verifies Gateway satisfies ToolGateway
 func TestGatewayImplementsInterface(t *testing.T) {
+	t.Helper()
 	var _ toolruntime.ToolGateway = (*Gateway)(nil)
 }
 
