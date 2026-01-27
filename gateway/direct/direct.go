@@ -1,4 +1,4 @@
-// Package direct provides a DirectGateway that implements ToolGateway
+// Package direct provides a gateway that implements ToolGateway
 // by directly delegating to toolindex, tooldocs, and toolrun components.
 // This gateway runs in-process with no isolation boundary.
 package direct
@@ -25,7 +25,7 @@ var (
 	ErrChainStepLimitExceeded = errors.New("chain step limit exceeded")
 )
 
-// Config configures a DirectGateway.
+// Config configures a direct gateway.
 type Config struct {
 	// Index is the tool index for search and lookup.
 	Index toolindex.Index
@@ -45,9 +45,9 @@ type Config struct {
 	MaxChainSteps int
 }
 
-// DirectGateway implements ToolGateway by directly delegating to
+// Gateway implements ToolGateway by directly delegating to
 // the index, docs, and runner components.
-type DirectGateway struct {
+type Gateway struct {
 	index         toolindex.Index
 	docs          tooldocs.Store
 	runner        toolrun.Runner
@@ -59,9 +59,9 @@ type DirectGateway struct {
 	toolCalls []toolruntime.ToolCallRecord
 }
 
-// New creates a new DirectGateway with the given configuration.
-func New(cfg Config) *DirectGateway {
-	return &DirectGateway{
+// New creates a new direct gateway with the given configuration.
+func New(cfg Config) *Gateway {
+	return &Gateway{
 		index:         cfg.Index,
 		docs:          cfg.Docs,
 		runner:        cfg.Runner,
@@ -71,7 +71,7 @@ func New(cfg Config) *DirectGateway {
 }
 
 // SearchTools delegates to the index.
-func (g *DirectGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (g *Gateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
@@ -79,7 +79,7 @@ func (g *DirectGateway) SearchTools(ctx context.Context, query string, limit int
 }
 
 // ListNamespaces delegates to the index.
-func (g *DirectGateway) ListNamespaces(ctx context.Context) ([]string, error) {
+func (g *Gateway) ListNamespaces(ctx context.Context) ([]string, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
@@ -87,7 +87,7 @@ func (g *DirectGateway) ListNamespaces(ctx context.Context) ([]string, error) {
 }
 
 // DescribeTool delegates to the docs store.
-func (g *DirectGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (g *Gateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	if ctx.Err() != nil {
 		return tooldocs.ToolDoc{}, ctx.Err()
 	}
@@ -95,15 +95,15 @@ func (g *DirectGateway) DescribeTool(ctx context.Context, id string, level toold
 }
 
 // ListToolExamples delegates to the docs store.
-func (g *DirectGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (g *Gateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
-	return g.docs.ListExamples(id, max)
+	return g.docs.ListExamples(id, maxExamples)
 }
 
 // RunTool delegates to the runner and records the call.
-func (g *DirectGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (g *Gateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
 	if ctx.Err() != nil {
 		return toolrun.RunResult{}, ctx.Err()
 	}
@@ -142,7 +142,7 @@ func (g *DirectGateway) RunTool(ctx context.Context, id string, args map[string]
 }
 
 // RunChain delegates to the runner and records the calls.
-func (g *DirectGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (g *Gateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	if ctx.Err() != nil {
 		return toolrun.RunResult{}, nil, ctx.Err()
 	}
@@ -196,7 +196,7 @@ func (g *DirectGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep)
 }
 
 // GetToolCalls returns a copy of all recorded tool calls.
-func (g *DirectGateway) GetToolCalls() []toolruntime.ToolCallRecord {
+func (g *Gateway) GetToolCalls() []toolruntime.ToolCallRecord {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	result := make([]toolruntime.ToolCallRecord, len(g.toolCalls))
@@ -205,7 +205,7 @@ func (g *DirectGateway) GetToolCalls() []toolruntime.ToolCallRecord {
 }
 
 // Reset clears recorded tool calls and resets the call counter.
-func (g *DirectGateway) Reset() {
+func (g *Gateway) Reset() {
 	g.mu.Lock()
 	defer g.mu.Unlock()
 	g.callCount = 0

@@ -8,19 +8,19 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
-func TestKubernetesBackendImplementsInterface(t *testing.T) {
+func TestBackendImplementsInterface(t *testing.T) {
 	t.Helper()
-	var _ toolruntime.Backend = (*KubernetesBackend)(nil)
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestKubernetesBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendKubernetes {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendKubernetes)
 	}
 }
 
-func TestKubernetesBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.namespace != "default" {
 		t.Errorf("namespace = %q, want %q", b.namespace, "default")
@@ -30,7 +30,7 @@ func TestKubernetesBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestKubernetesBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 	ctx := context.Background()
 	req := toolruntime.ExecuteRequest{

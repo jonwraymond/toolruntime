@@ -1,4 +1,4 @@
-// Package kubernetes provides a KubernetesBackend that executes code in Kubernetes pods/jobs.
+// Package kubernetes provides a backend that executes code in Kubernetes pods/jobs.
 // Best for scheduling, quotas, and multi-tenant controls; isolation depends on runtime class.
 package kubernetes
 
@@ -30,7 +30,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a KubernetesBackend.
+// Config configures a Kubernetes backend.
 type Config struct {
 	// Namespace is the Kubernetes namespace for execution pods.
 	// Default: default
@@ -51,8 +51,8 @@ type Config struct {
 	Logger Logger
 }
 
-// KubernetesBackend executes code in Kubernetes pods/jobs.
-type KubernetesBackend struct {
+// Backend executes code in Kubernetes pods/jobs.
+type Backend struct {
 	namespace        string
 	image            string
 	runtimeClassName string
@@ -60,8 +60,8 @@ type KubernetesBackend struct {
 	logger           Logger
 }
 
-// New creates a new KubernetesBackend with the given configuration.
-func New(cfg Config) *KubernetesBackend {
+// New creates a new Kubernetes backend with the given configuration.
+func New(cfg Config) *Backend {
 	namespace := cfg.Namespace
 	if namespace == "" {
 		namespace = "default"
@@ -72,7 +72,7 @@ func New(cfg Config) *KubernetesBackend {
 		image = "toolruntime-sandbox:latest"
 	}
 
-	return &KubernetesBackend{
+	return &Backend{
 		namespace:        namespace,
 		image:            image,
 		runtimeClassName: cfg.RuntimeClassName,
@@ -82,12 +82,12 @@ func New(cfg Config) *KubernetesBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *KubernetesBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendKubernetes
 }
 
 // Execute runs code in a Kubernetes pod.
-func (b *KubernetesBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -109,4 +109,4 @@ func (b *KubernetesBackend) Execute(ctx context.Context, req toolruntime.Execute
 	return result, fmt.Errorf("%w: kubernetes backend not fully implemented", ErrKubernetesNotAvailable)
 }
 
-var _ toolruntime.Backend = (*KubernetesBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

@@ -20,27 +20,27 @@ type mockIndex struct {
 	searchErr  error
 }
 
-func (m *mockIndex) RegisterTool(tool toolmodel.Tool, backend toolmodel.ToolBackend) error {
+func (m *mockIndex) RegisterTool(_ toolmodel.Tool, _ toolmodel.ToolBackend) error {
 	return nil
 }
 
-func (m *mockIndex) RegisterTools(regs []toolindex.ToolRegistration) error {
+func (m *mockIndex) RegisterTools(_ []toolindex.ToolRegistration) error {
 	return nil
 }
 
-func (m *mockIndex) RegisterToolsFromMCP(serverName string, tools []toolmodel.Tool) error {
+func (m *mockIndex) RegisterToolsFromMCP(_ string, _ []toolmodel.Tool) error {
 	return nil
 }
 
-func (m *mockIndex) UnregisterBackend(toolID string, kind toolmodel.BackendKind, backendID string) error {
+func (m *mockIndex) UnregisterBackend(_ string, _ toolmodel.BackendKind, _ string) error {
 	return nil
 }
 
-func (m *mockIndex) GetTool(id string) (toolmodel.Tool, toolmodel.ToolBackend, error) {
+func (m *mockIndex) GetTool(_ string) (toolmodel.Tool, toolmodel.ToolBackend, error) {
 	return toolmodel.Tool{}, toolmodel.ToolBackend{}, nil
 }
 
-func (m *mockIndex) GetAllBackends(id string) ([]toolmodel.ToolBackend, error) {
+func (m *mockIndex) GetAllBackends(_ string) ([]toolmodel.ToolBackend, error) {
 	return nil, nil
 }
 
@@ -77,13 +77,13 @@ func (m *mockDocs) DescribeTool(id string, level tooldocs.DetailLevel) (tooldocs
 	return doc, nil
 }
 
-func (m *mockDocs) ListExamples(id string, max int) ([]tooldocs.ToolExample, error) {
+func (m *mockDocs) ListExamples(id string, maxExamples int) ([]tooldocs.ToolExample, error) {
 	if m.examplesErr != nil {
 		return nil, m.examplesErr
 	}
 	examples := m.examples[id]
-	if max > 0 && max < len(examples) {
-		return examples[:max], nil
+	if maxExamples > 0 && maxExamples < len(examples) {
+		return examples[:maxExamples], nil
 	}
 	return examples, nil
 }
@@ -131,13 +131,13 @@ func (m *mockRunner) RunChain(ctx context.Context, steps []toolrun.ChainStep) (t
 	return m.chainResult, m.stepResults, nil
 }
 
-// TestDirectGatewayImplementsInterface verifies DirectGateway satisfies ToolGateway
-func TestDirectGatewayImplementsInterface(t *testing.T) {
+// TestGatewayImplementsInterface verifies Gateway satisfies ToolGateway
+func TestGatewayImplementsInterface(t *testing.T) {
 	t.Helper()
-	var _ toolruntime.ToolGateway = (*DirectGateway)(nil)
+	var _ toolruntime.ToolGateway = (*Gateway)(nil)
 }
 
-func TestDirectGatewaySearchTools(t *testing.T) {
+func TestGatewaySearchTools(t *testing.T) {
 	summaries := []toolindex.Summary{
 		{ID: "test:tool1", Name: "tool1"},
 		{ID: "test:tool2", Name: "tool2"},
@@ -188,7 +188,7 @@ func TestDirectGatewaySearchTools(t *testing.T) {
 	})
 }
 
-func TestDirectGatewayListNamespaces(t *testing.T) {
+func TestGatewayListNamespaces(t *testing.T) {
 	namespaces := []string{"ns1", "ns2"}
 	index := &mockIndex{namespaces: namespaces}
 	gw := New(Config{
@@ -208,7 +208,7 @@ func TestDirectGatewayListNamespaces(t *testing.T) {
 	}
 }
 
-func TestDirectGatewayDescribeTool(t *testing.T) {
+func TestGatewayDescribeTool(t *testing.T) {
 	docs := &mockDocs{
 		docs: map[string]tooldocs.ToolDoc{
 			"test:tool": {Summary: "Test tool"},
@@ -240,7 +240,7 @@ func TestDirectGatewayDescribeTool(t *testing.T) {
 	})
 }
 
-func TestDirectGatewayListToolExamples(t *testing.T) {
+func TestGatewayListToolExamples(t *testing.T) {
 	examples := []tooldocs.ToolExample{
 		{Title: "Example 1"},
 		{Title: "Example 2"},
@@ -267,7 +267,7 @@ func TestDirectGatewayListToolExamples(t *testing.T) {
 	}
 }
 
-func TestDirectGatewayRunTool(t *testing.T) {
+func TestGatewayRunTool(t *testing.T) {
 	runner := &mockRunner{
 		runResult: toolrun.RunResult{
 			Structured: "result",
@@ -319,7 +319,7 @@ func TestDirectGatewayRunTool(t *testing.T) {
 	})
 }
 
-func TestDirectGatewayRunChain(t *testing.T) {
+func TestGatewayRunChain(t *testing.T) {
 	runner := &mockRunner{
 		chainResult: toolrun.RunResult{
 			Structured: "chain_result",
@@ -365,7 +365,7 @@ func TestDirectGatewayRunChain(t *testing.T) {
 	})
 }
 
-func TestDirectGatewayToolCallLimits(t *testing.T) {
+func TestGatewayToolCallLimits(t *testing.T) {
 	runner := &mockRunner{}
 	gw := New(Config{
 		Index:        &mockIndex{},
@@ -396,7 +396,7 @@ func TestDirectGatewayToolCallLimits(t *testing.T) {
 	}
 }
 
-func TestDirectGatewayChainStepLimits(t *testing.T) {
+func TestGatewayChainStepLimits(t *testing.T) {
 	runner := &mockRunner{
 		stepResults: []toolrun.StepResult{{}, {}},
 	}
@@ -424,7 +424,7 @@ func TestDirectGatewayChainStepLimits(t *testing.T) {
 	}
 }
 
-func TestDirectGatewayThreadSafety(t *testing.T) {
+func TestGatewayThreadSafety(t *testing.T) {
 	runner := &mockRunner{}
 	gw := New(Config{
 		Index:  &mockIndex{summaries: []toolindex.Summary{{ID: "test:tool"}}},
@@ -455,7 +455,7 @@ func TestDirectGatewayThreadSafety(t *testing.T) {
 	wg.Wait()
 }
 
-func TestDirectGatewayContractCompliance(t *testing.T) {
+func TestGatewayContractCompliance(t *testing.T) {
 	toolruntime.RunGatewayContractTests(t, toolruntime.GatewayContract{
 		NewGateway: func() toolruntime.ToolGateway {
 			return New(Config{
