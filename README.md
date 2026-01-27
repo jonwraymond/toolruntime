@@ -103,7 +103,7 @@ func main() {
 - `toolrun`: `v0.1.1`
 - `toolcode`: `v0.1.1`
 - `toolruntime`: `v0.1.1`
-- `toolsearch`: `v0.1.0`
+- `toolsearch`: `v0.1.1`
 - `metatools-mcp`: `v0.1.3`
 
 ## CI
