@@ -37,7 +37,6 @@ type mockTools struct {
 	runResult     toolrun.RunResult
 	chainResult   toolrun.RunResult
 	stepResults   []toolrun.StepResult
-	stdout        string
 }
 
 func (m *mockTools) SearchTools(query string, limit int) ([]toolindex.Summary, error) {

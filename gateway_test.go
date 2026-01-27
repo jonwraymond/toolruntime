@@ -25,6 +25,57 @@ func TestMockGatewayContract(t *testing.T) {
 	})
 }
 
+func TestRecordingGatewayCounts(t *testing.T) {
+	base := &mockToolGateway{}
+	rec := &recordingGateway{wrapped: base}
+
+	ctx := context.Background()
+	if _, err := rec.SearchTools(ctx, "q", 1); err != nil {
+		t.Fatalf("SearchTools failed: %v", err)
+	}
+	if _, err := rec.RunTool(ctx, "tool", map[string]any{"k": "v"}); err != nil {
+		t.Fatalf("RunTool failed: %v", err)
+	}
+	if _, _, err := rec.RunChain(ctx, []toolrun.ChainStep{{ToolID: "tool"}}); err != nil {
+		t.Fatalf("RunChain failed: %v", err)
+	}
+
+	if rec.searchCalls != 1 {
+		t.Fatalf("searchCalls = %d, want 1", rec.searchCalls)
+	}
+	if rec.runToolCalls != 1 {
+		t.Fatalf("runToolCalls = %d, want 1", rec.runToolCalls)
+	}
+	if rec.runChainCalls != 1 {
+		t.Fatalf("runChainCalls = %d, want 1", rec.runChainCalls)
+	}
+}
+
+func TestErrGatewayPropagates(t *testing.T) {
+	expected := errors.New("boom")
+	g := &errGateway{err: expected}
+	ctx := context.Background()
+
+	if _, err := g.SearchTools(ctx, "q", 1); !errors.Is(err, expected) {
+		t.Fatalf("SearchTools error = %v, want %v", err, expected)
+	}
+	if _, err := g.ListNamespaces(ctx); !errors.Is(err, expected) {
+		t.Fatalf("ListNamespaces error = %v, want %v", err, expected)
+	}
+	if _, err := g.DescribeTool(ctx, "id", tooldocs.DetailSummary); !errors.Is(err, expected) {
+		t.Fatalf("DescribeTool error = %v, want %v", err, expected)
+	}
+	if _, err := g.ListToolExamples(ctx, "id", 1); !errors.Is(err, expected) {
+		t.Fatalf("ListToolExamples error = %v, want %v", err, expected)
+	}
+	if _, err := g.RunTool(ctx, "id", nil); !errors.Is(err, expected) {
+		t.Fatalf("RunTool error = %v, want %v", err, expected)
+	}
+	if _, _, err := g.RunChain(ctx, []toolrun.ChainStep{{ToolID: "id"}}); !errors.Is(err, expected) {
+		t.Fatalf("RunChain error = %v, want %v", err, expected)
+	}
+}
+
 // recordingGateway wraps a gateway and records calls for testing
 type recordingGateway struct {
 	wrapped       ToolGateway

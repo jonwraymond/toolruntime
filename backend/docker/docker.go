@@ -109,6 +109,12 @@ func (b *DockerBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequ
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
+	select {
+	case <-ctx.Done():
+		return toolruntime.ExecuteResult{}, ctx.Err()
+	default:
+	}
+
 	start := time.Now()
 
 	// Get container options based on profile and limits

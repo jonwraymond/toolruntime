@@ -173,7 +173,7 @@ func (b *UnsafeBackend) executeSubprocess(ctx context.Context, req toolruntime.E
 
 	// Write the code to a file
 	mainFile := filepath.Join(tmpDir, "main.go")
-	if err := os.WriteFile(mainFile, []byte(wrappedCode), 0644); err != nil {
+	if err := os.WriteFile(mainFile, []byte(wrappedCode), 0600); err != nil {
 		return toolruntime.ExecuteResult{}, fmt.Errorf("%w: failed to write code: %v", ErrSubprocessFailed, err)
 	}
 
@@ -182,7 +182,7 @@ func (b *UnsafeBackend) executeSubprocess(ctx context.Context, req toolruntime.E
 
 go 1.21
 `
-	if err := os.WriteFile(filepath.Join(tmpDir, "go.mod"), []byte(goMod), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "go.mod"), []byte(goMod), 0600); err != nil {
 		return toolruntime.ExecuteResult{}, fmt.Errorf("%w: failed to write go.mod: %v", ErrSubprocessFailed, err)
 	}
 
