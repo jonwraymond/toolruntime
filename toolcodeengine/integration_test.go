@@ -167,7 +167,7 @@ func (b *errorBackend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendUnsafeHost
 }
 
-func (b *errorBackend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *errorBackend) Execute(_ context.Context, _ toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if b.err != nil {
 		return toolruntime.ExecuteResult{}, b.err
 	}
