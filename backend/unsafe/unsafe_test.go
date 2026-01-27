@@ -21,30 +21,30 @@ type mockGateway struct {
 	runErr        error
 }
 
-func (m *mockGateway) SearchTools(ctx context.Context, _ string, _ int) ([]toolindex.Summary, error) {
+func (m *mockGateway) SearchTools(_ context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return m.searchResults, nil
 }
 
-func (m *mockGateway) ListNamespaces(ctx context.Context) ([]string, error) {
+func (m *mockGateway) ListNamespaces(_ context.Context) ([]string, error) {
 	return nil, nil
 }
 
-func (m *mockGateway) DescribeTool(ctx context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockGateway) DescribeTool(_ context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, nil
 }
 
-func (m *mockGateway) ListToolExamples(ctx context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
+func (m *mockGateway) ListToolExamples(_ context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, nil
 }
 
-func (m *mockGateway) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
+func (m *mockGateway) RunTool(_ context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	if m.runErr != nil {
 		return toolrun.RunResult{}, m.runErr
 	}
 	return m.runResult, nil
 }
 
-func (m *mockGateway) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockGateway) RunChain(_ context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, nil
 }
 
