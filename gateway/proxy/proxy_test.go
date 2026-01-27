@@ -27,7 +27,7 @@ func newMockConnection() *mockConnection {
 	}
 }
 
-func (c *mockConnection) Send(ctx context.Context, msg Message) error {
+func (c *mockConnection) Send(_ context.Context, msg Message) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -50,7 +50,7 @@ func (c *mockConnection) Send(ctx context.Context, msg Message) error {
 	return nil
 }
 
-func (c *mockConnection) Receive(ctx context.Context) (Message, error) {
+func (c *mockConnection) Receive(_ context.Context) (Message, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -97,7 +97,7 @@ func (c *autoRespondConnection) SetGateway(g *Gateway) {
 	c.gateway = g
 }
 
-func (c *autoRespondConnection) Send(ctx context.Context, msg Message) error {
+func (c *autoRespondConnection) Send(_ context.Context, msg Message) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -118,7 +118,7 @@ func (c *autoRespondConnection) Send(ctx context.Context, msg Message) error {
 	return nil
 }
 
-func (c *autoRespondConnection) Receive(ctx context.Context) (Message, error) {
+func (c *autoRespondConnection) Receive(_ context.Context) (Message, error) {
 	return Message{}, errors.New("not implemented")
 }
 

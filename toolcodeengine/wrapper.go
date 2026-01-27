@@ -37,8 +37,8 @@ func (g *toolsGateway) DescribeTool(ctx context.Context, id string, level tooldo
 }
 
 // ListToolExamples implements toolruntime.ToolGateway by delegating to the wrapped Tools.
-func (g *toolsGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
-	return g.tools.ListToolExamples(id, max)
+func (g *toolsGateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
+	return g.tools.ListToolExamples(id, maxExamples)
 }
 
 // RunTool implements toolruntime.ToolGateway by delegating to the wrapped Tools.

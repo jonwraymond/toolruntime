@@ -145,6 +145,7 @@ func TestWrapToolsRunChain(t *testing.T) {
 }
 
 func TestWrapToolsContextPropagation(t *testing.T) {
+	t.Helper()
 	tools := &mockTools{}
 	gw := WrapTools(tools)
 
