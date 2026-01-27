@@ -1,4 +1,4 @@
-// Package remote provides a RemoteBackend that executes code on a remote runtime service.
+// Package remote provides a backend that executes code on a remote runtime service.
 // Generic target for dedicated runtime services, batch systems, or job runners.
 package remote
 
@@ -30,7 +30,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a RemoteBackend.
+// Config configures a remote backend.
 type Config struct {
 	// Endpoint is the URL of the remote runtime service.
 	// Required.
@@ -55,8 +55,8 @@ type Config struct {
 	Logger Logger
 }
 
-// RemoteBackend executes code on a remote runtime service.
-type RemoteBackend struct {
+// Backend executes code on a remote runtime service.
+type Backend struct {
 	endpoint        string
 	authToken       string
 	tlsSkipVerify   bool
@@ -65,8 +65,8 @@ type RemoteBackend struct {
 	logger          Logger
 }
 
-// New creates a new RemoteBackend with the given configuration.
-func New(cfg Config) *RemoteBackend {
+// New creates a new remote backend with the given configuration.
+func New(cfg Config) *Backend {
 	timeoutOverhead := cfg.TimeoutOverhead
 	if timeoutOverhead == 0 {
 		timeoutOverhead = 5 * time.Second
@@ -77,7 +77,7 @@ func New(cfg Config) *RemoteBackend {
 		maxRetries = 3
 	}
 
-	return &RemoteBackend{
+	return &Backend{
 		endpoint:        cfg.Endpoint,
 		authToken:       cfg.AuthToken,
 		tlsSkipVerify:   cfg.TLSSkipVerify,
@@ -88,12 +88,12 @@ func New(cfg Config) *RemoteBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *RemoteBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendRemote
 }
 
 // Execute runs code on the remote runtime service.
-func (b *RemoteBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -117,4 +117,4 @@ func (b *RemoteBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequ
 	return result, fmt.Errorf("%w: remote backend not fully implemented", ErrRemoteNotAvailable)
 }
 
-var _ toolruntime.Backend = (*RemoteBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

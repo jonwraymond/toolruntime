@@ -1,4 +1,4 @@
-// Package firecracker provides a FirecrackerBackend that executes code in Firecracker microVMs.
+// Package firecracker provides a backend that executes code in Firecracker microVMs.
 // Provides strongest isolation; higher complexity and operational cost.
 // Appropriate for high-risk multi-tenant execution.
 package firecracker
@@ -31,7 +31,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a FirecrackerBackend.
+// Config configures a Firecracker backend.
 type Config struct {
 	// BinaryPath is the path to the firecracker binary.
 	// Default: firecracker (uses PATH)
@@ -61,8 +61,8 @@ type Config struct {
 	Logger Logger
 }
 
-// FirecrackerBackend executes code in Firecracker microVMs.
-type FirecrackerBackend struct {
+// Backend executes code in Firecracker microVMs.
+type Backend struct {
 	binaryPath string
 	kernelPath string
 	rootfsPath string
@@ -72,8 +72,8 @@ type FirecrackerBackend struct {
 	logger     Logger
 }
 
-// New creates a new FirecrackerBackend with the given configuration.
-func New(cfg Config) *FirecrackerBackend {
+// New creates a new Firecracker backend with the given configuration.
+func New(cfg Config) *Backend {
 	binaryPath := cfg.BinaryPath
 	if binaryPath == "" {
 		binaryPath = "firecracker"
@@ -89,7 +89,7 @@ func New(cfg Config) *FirecrackerBackend {
 		memSizeMB = 128
 	}
 
-	return &FirecrackerBackend{
+	return &Backend{
 		binaryPath: binaryPath,
 		kernelPath: cfg.KernelPath,
 		rootfsPath: cfg.RootfsPath,
@@ -101,12 +101,12 @@ func New(cfg Config) *FirecrackerBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *FirecrackerBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendFirecracker
 }
 
 // Execute runs code in a Firecracker microVM.
-func (b *FirecrackerBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -127,4 +127,4 @@ func (b *FirecrackerBackend) Execute(ctx context.Context, req toolruntime.Execut
 	return result, fmt.Errorf("%w: firecracker backend not fully implemented", ErrFirecrackerNotAvailable)
 }
 
-var _ toolruntime.Backend = (*FirecrackerBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

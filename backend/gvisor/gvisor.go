@@ -1,4 +1,4 @@
-// Package gvisor provides a GVisorBackend that executes code with gVisor (runsc).
+// Package gvisor provides a backend that executes code with gVisor (runsc).
 // Provides stronger isolation than plain containers; appropriate for untrusted multi-tenant execution.
 package gvisor
 
@@ -30,7 +30,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures a GVisorBackend.
+// Config configures a gVisor backend.
 type Config struct {
 	// RunscPath is the path to the runsc binary.
 	// Default: runsc (uses PATH)
@@ -54,8 +54,8 @@ type Config struct {
 	Logger Logger
 }
 
-// GVisorBackend executes code with gVisor for stronger isolation.
-type GVisorBackend struct {
+// Backend executes code with gVisor for stronger isolation.
+type Backend struct {
 	runscPath   string
 	rootDir     string
 	platform    string
@@ -63,8 +63,8 @@ type GVisorBackend struct {
 	logger      Logger
 }
 
-// New creates a new GVisorBackend with the given configuration.
-func New(cfg Config) *GVisorBackend {
+// New creates a new gVisor backend with the given configuration.
+func New(cfg Config) *Backend {
 	runscPath := cfg.RunscPath
 	if runscPath == "" {
 		runscPath = "runsc"
@@ -85,7 +85,7 @@ func New(cfg Config) *GVisorBackend {
 		networkMode = "none"
 	}
 
-	return &GVisorBackend{
+	return &Backend{
 		runscPath:   runscPath,
 		rootDir:     rootDir,
 		platform:    platform,
@@ -95,12 +95,12 @@ func New(cfg Config) *GVisorBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *GVisorBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendGVisor
 }
 
 // Execute runs code with gVisor isolation.
-func (b *GVisorBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
@@ -121,4 +121,4 @@ func (b *GVisorBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequ
 	return result, fmt.Errorf("%w: gvisor backend not fully implemented", ErrGVisorNotAvailable)
 }
 
-var _ toolruntime.Backend = (*GVisorBackend)(nil)
+var _ toolruntime.Backend = (*Backend)(nil)

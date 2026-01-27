@@ -8,18 +8,18 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
-func TestFirecrackerBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*FirecrackerBackend)(nil)
+func TestBackendImplementsInterface(t *testing.T) {
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestFirecrackerBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendFirecracker {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendFirecracker)
 	}
 }
 
-func TestFirecrackerBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.binaryPath != "firecracker" {
 		t.Errorf("binaryPath = %q, want %q", b.binaryPath, "firecracker")
@@ -32,7 +32,7 @@ func TestFirecrackerBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestFirecrackerBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 	ctx := context.Background()
 	req := toolruntime.ExecuteRequest{

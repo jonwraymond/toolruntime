@@ -26,7 +26,7 @@ type testTools struct {
 	stepResults   []toolrun.StepResult
 }
 
-func (t *testTools) SearchTools(query string, limit int) ([]toolindex.Summary, error) {
+func (t *testTools) SearchTools(_ string, _ int) ([]toolindex.Summary, error) {
 	return t.searchResults, nil
 }
 
@@ -34,23 +34,23 @@ func (t *testTools) ListNamespaces() ([]string, error) {
 	return t.namespaces, nil
 }
 
-func (t *testTools) DescribeTool(id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (t *testTools) DescribeTool(_ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return t.toolDoc, nil
 }
 
-func (t *testTools) ListToolExamples(id string, max int) ([]tooldocs.ToolExample, error) {
+func (t *testTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, error) {
 	return t.examples, nil
 }
 
-func (t *testTools) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (t *testTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return t.runResult, nil
 }
 
-func (t *testTools) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (t *testTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return t.chainResult, t.stepResults, nil
 }
 
-func (t *testTools) Println(args ...any) {}
+func (t *testTools) Println(_ ...any) {}
 
 var _ toolcode.Tools = (*testTools)(nil)
 

@@ -21,7 +21,7 @@ type mockGateway struct {
 	runErr        error
 }
 
-func (m *mockGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (m *mockGateway) SearchTools(ctx context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return m.searchResults, nil
 }
 
@@ -29,22 +29,22 @@ func (m *mockGateway) ListNamespaces(ctx context.Context) ([]string, error) {
 	return nil, nil
 }
 
-func (m *mockGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockGateway) DescribeTool(ctx context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, nil
 }
 
-func (m *mockGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (m *mockGateway) ListToolExamples(ctx context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, nil
 }
 
-func (m *mockGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (m *mockGateway) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	if m.runErr != nil {
 		return toolrun.RunResult{}, m.runErr
 	}
 	return m.runResult, nil
 }
 
-func (m *mockGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockGateway) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, nil
 }
 
@@ -53,9 +53,9 @@ type mockLogger struct {
 	messages []string
 }
 
-func (l *mockLogger) Info(msg string, args ...any)  { l.messages = append(l.messages, "INFO: "+msg) }
-func (l *mockLogger) Warn(msg string, args ...any)  { l.messages = append(l.messages, "WARN: "+msg) }
-func (l *mockLogger) Error(msg string, args ...any) { l.messages = append(l.messages, "ERROR: "+msg) }
+func (l *mockLogger) Info(msg string, _ ...any)  { l.messages = append(l.messages, "INFO: "+msg) }
+func (l *mockLogger) Warn(msg string, _ ...any)  { l.messages = append(l.messages, "WARN: "+msg) }
+func (l *mockLogger) Error(msg string, _ ...any) { l.messages = append(l.messages, "ERROR: "+msg) }
 
 func (l *mockLogger) hasWarning(substr string) bool {
 	for _, m := range l.messages {
@@ -66,12 +66,12 @@ func (l *mockLogger) hasWarning(substr string) bool {
 	return false
 }
 
-// TestUnsafeBackendImplementsInterface verifies UnsafeBackend satisfies Backend
-func TestUnsafeBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*UnsafeBackend)(nil)
+// TestBackendImplementsInterface verifies Backend satisfies toolruntime.Backend
+func TestBackendImplementsInterface(t *testing.T) {
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestUnsafeBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 
 	if b.Kind() != toolruntime.BackendUnsafeHost {
@@ -79,7 +79,7 @@ func TestUnsafeBackendKind(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 
 	ctx := context.Background()
@@ -94,7 +94,7 @@ func TestUnsafeBackendRequiresGateway(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendRequiresCode(t *testing.T) {
+func TestBackendRequiresCode(t *testing.T) {
 	b := New(Config{})
 
 	ctx := context.Background()
@@ -109,7 +109,7 @@ func TestUnsafeBackendRequiresCode(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendLogsWarning(t *testing.T) {
+func TestBackendLogsWarning(t *testing.T) {
 	logger := &mockLogger{}
 	b := New(Config{Logger: logger})
 
@@ -126,7 +126,7 @@ func TestUnsafeBackendLogsWarning(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendRequiresOptIn(t *testing.T) {
+func TestBackendRequiresOptIn(t *testing.T) {
 	b := New(Config{RequireOptIn: true})
 
 	ctx := context.Background()
@@ -141,7 +141,7 @@ func TestUnsafeBackendRequiresOptIn(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendOptInAllows(t *testing.T) {
+func TestBackendOptInAllows(t *testing.T) {
 	b := New(Config{RequireOptIn: true})
 
 	ctx := context.Background()
@@ -161,7 +161,7 @@ func TestUnsafeBackendOptInAllows(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendRespectsTimeout(t *testing.T) {
+func TestBackendRespectsTimeout(t *testing.T) {
 	b := New(Config{Mode: ModeInterpreter})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
@@ -188,7 +188,7 @@ func TestUnsafeBackendRespectsTimeout(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendReturnsBackendInfo(t *testing.T) {
+func TestBackendReturnsBackendInfo(t *testing.T) {
 	b := New(Config{Mode: ModeInterpreter})
 
 	ctx := context.Background()
@@ -207,7 +207,7 @@ func TestUnsafeBackendReturnsBackendInfo(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendCapturesStdout(t *testing.T) {
+func TestBackendCapturesStdout(t *testing.T) {
 	b := New(Config{Mode: ModeInterpreter})
 
 	ctx := context.Background()
@@ -226,7 +226,7 @@ func TestUnsafeBackendCapturesStdout(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendModeSelection(t *testing.T) {
+func TestBackendModeSelection(t *testing.T) {
 	tests := []struct {
 		mode ExecutionMode
 		want ExecutionMode
@@ -245,14 +245,14 @@ func TestUnsafeBackendModeSelection(t *testing.T) {
 	}
 }
 
-func TestUnsafeBackendDefaultMode(t *testing.T) {
+func TestBackendDefaultMode(t *testing.T) {
 	b := New(Config{})
 	if b.mode != ModeInterpreter {
 		t.Errorf("default mode = %v, want %v", b.mode, ModeInterpreter)
 	}
 }
 
-func TestUnsafeBackendContractCompliance(t *testing.T) {
+func TestBackendContractCompliance(t *testing.T) {
 	toolruntime.RunBackendContractTests(t, toolruntime.BackendContract{
 		NewBackend: func() toolruntime.Backend {
 			return New(Config{Mode: ModeInterpreter})

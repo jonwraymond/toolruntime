@@ -15,7 +15,7 @@ var errToolNotFound = errors.New("tool not found")
 // mockToolGateway is a minimal mock for testing
 type mockToolGateway struct{}
 
-func (m *mockToolGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (m *mockToolGateway) SearchTools(ctx context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
@@ -29,7 +29,7 @@ func (m *mockToolGateway) ListNamespaces(ctx context.Context) ([]string, error) 
 	return nil, nil
 }
 
-func (m *mockToolGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockToolGateway) DescribeTool(ctx context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	if ctx.Err() != nil {
 		return tooldocs.ToolDoc{}, ctx.Err()
 	}
@@ -37,21 +37,21 @@ func (m *mockToolGateway) DescribeTool(ctx context.Context, id string, level too
 	return tooldocs.ToolDoc{}, errToolNotFound
 }
 
-func (m *mockToolGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (m *mockToolGateway) ListToolExamples(ctx context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	if ctx.Err() != nil {
 		return nil, ctx.Err()
 	}
 	return nil, nil
 }
 
-func (m *mockToolGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (m *mockToolGateway) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	if ctx.Err() != nil {
 		return toolrun.RunResult{}, ctx.Err()
 	}
 	return toolrun.RunResult{}, nil
 }
 
-func (m *mockToolGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockToolGateway) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	if ctx.Err() != nil {
 		return toolrun.RunResult{}, nil, ctx.Err()
 	}

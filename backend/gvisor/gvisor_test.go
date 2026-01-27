@@ -8,18 +8,18 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
-func TestGVisorBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*GVisorBackend)(nil)
+func TestBackendImplementsInterface(t *testing.T) {
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestGVisorBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 	if b.Kind() != toolruntime.BackendGVisor {
 		t.Errorf("Kind() = %v, want %v", b.Kind(), toolruntime.BackendGVisor)
 	}
 }
 
-func TestGVisorBackendDefaults(t *testing.T) {
+func TestBackendDefaults(t *testing.T) {
 	b := New(Config{})
 	if b.runscPath != "runsc" {
 		t.Errorf("runscPath = %q, want %q", b.runscPath, "runsc")
@@ -32,7 +32,7 @@ func TestGVisorBackendDefaults(t *testing.T) {
 	}
 }
 
-func TestGVisorBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 	ctx := context.Background()
 	req := toolruntime.ExecuteRequest{

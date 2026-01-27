@@ -14,7 +14,7 @@ import (
 // mockGateway implements toolruntime.ToolGateway for testing
 type mockGateway struct{}
 
-func (m *mockGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (m *mockGateway) SearchTools(ctx context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return nil, nil
 }
 
@@ -22,28 +22,28 @@ func (m *mockGateway) ListNamespaces(ctx context.Context) ([]string, error) {
 	return nil, nil
 }
 
-func (m *mockGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockGateway) DescribeTool(ctx context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, nil
 }
 
-func (m *mockGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (m *mockGateway) ListToolExamples(ctx context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, nil
 }
 
-func (m *mockGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (m *mockGateway) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return toolrun.RunResult{}, nil
 }
 
-func (m *mockGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockGateway) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return toolrun.RunResult{}, nil, nil
 }
 
-// TestDockerBackendImplementsInterface verifies DockerBackend satisfies Backend
-func TestDockerBackendImplementsInterface(t *testing.T) {
-	var _ toolruntime.Backend = (*DockerBackend)(nil)
+// TestBackendImplementsInterface verifies Backend satisfies toolruntime.Backend
+func TestBackendImplementsInterface(t *testing.T) {
+	var _ toolruntime.Backend = (*Backend)(nil)
 }
 
-func TestDockerBackendKind(t *testing.T) {
+func TestBackendKind(t *testing.T) {
 	b := New(Config{})
 
 	if b.Kind() != toolruntime.BackendDocker {
@@ -51,7 +51,7 @@ func TestDockerBackendKind(t *testing.T) {
 	}
 }
 
-func TestDockerBackendRequiresGateway(t *testing.T) {
+func TestBackendRequiresGateway(t *testing.T) {
 	b := New(Config{})
 
 	ctx := context.Background()
@@ -66,7 +66,7 @@ func TestDockerBackendRequiresGateway(t *testing.T) {
 	}
 }
 
-func TestDockerBackendRequiresCode(t *testing.T) {
+func TestBackendRequiresCode(t *testing.T) {
 	b := New(Config{})
 
 	ctx := context.Background()
@@ -81,7 +81,7 @@ func TestDockerBackendRequiresCode(t *testing.T) {
 	}
 }
 
-func TestDockerBackendContractCompliance(t *testing.T) {
+func TestBackendContractCompliance(t *testing.T) {
 	toolruntime.RunBackendContractTests(t, toolruntime.BackendContract{
 		NewBackend: func() toolruntime.Backend {
 			return New(Config{})
@@ -94,7 +94,7 @@ func TestDockerBackendContractCompliance(t *testing.T) {
 	})
 }
 
-func TestDockerBackendProfileRestrictions(t *testing.T) {
+func TestBackendProfileRestrictions(t *testing.T) {
 	b := New(Config{})
 
 	tests := []struct {
@@ -124,7 +124,7 @@ func TestDockerBackendProfileRestrictions(t *testing.T) {
 	}
 }
 
-func TestDockerBackendResourceLimits(t *testing.T) {
+func TestBackendResourceLimits(t *testing.T) {
 	b := New(Config{})
 
 	limits := toolruntime.Limits{

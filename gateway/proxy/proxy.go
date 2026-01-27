@@ -20,7 +20,7 @@ var (
 	ErrProtocol         = errors.New("protocol error")
 )
 
-// Config configures a ProxyGateway.
+// Config configures a proxy gateway.
 type Config struct {
 	// Connection is the underlying connection to use.
 	Connection Connection
@@ -29,10 +29,10 @@ type Config struct {
 	Codec Codec
 }
 
-// ProxyGateway implements ToolGateway by serializing requests over a connection.
+// Gateway implements ToolGateway by serializing requests over a connection.
 // This is used when the gateway needs to communicate across process boundaries,
 // such as when code runs in a Docker container.
-type ProxyGateway struct {
+type Gateway struct {
 	conn      Connection
 	codec     Codec
 	requestID atomic.Uint64
@@ -41,21 +41,21 @@ type ProxyGateway struct {
 	closeMu   sync.Mutex
 }
 
-// New creates a new ProxyGateway with the given configuration.
-func New(cfg Config) *ProxyGateway {
+// New creates a new proxy gateway with the given configuration.
+func New(cfg Config) *Gateway {
 	codec := cfg.Codec
 	if codec == nil {
 		codec = &jsonCodec{}
 	}
 
-	return &ProxyGateway{
+	return &Gateway{
 		conn:  cfg.Connection,
 		codec: codec,
 	}
 }
 
 // SearchTools sends a search request over the connection.
-func (g *ProxyGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (g *Gateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
 	if g.closed.Load() {
 		return nil, ErrConnectionClosed
 	}
@@ -98,7 +98,7 @@ func (g *ProxyGateway) SearchTools(ctx context.Context, query string, limit int)
 }
 
 // ListNamespaces sends a list namespaces request over the connection.
-func (g *ProxyGateway) ListNamespaces(ctx context.Context) ([]string, error) {
+func (g *Gateway) ListNamespaces(ctx context.Context) ([]string, error) {
 	if g.closed.Load() {
 		return nil, ErrConnectionClosed
 	}
@@ -125,7 +125,7 @@ func (g *ProxyGateway) ListNamespaces(ctx context.Context) ([]string, error) {
 }
 
 // DescribeTool sends a describe tool request over the connection.
-func (g *ProxyGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (g *Gateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	if g.closed.Load() {
 		return tooldocs.ToolDoc{}, ErrConnectionClosed
 	}
@@ -148,7 +148,7 @@ func (g *ProxyGateway) DescribeTool(ctx context.Context, id string, level tooldo
 }
 
 // ListToolExamples sends a list examples request over the connection.
-func (g *ProxyGateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
+func (g *Gateway) ListToolExamples(ctx context.Context, id string, max int) ([]tooldocs.ToolExample, error) {
 	if g.closed.Load() {
 		return nil, ErrConnectionClosed
 	}
@@ -187,7 +187,7 @@ func (g *ProxyGateway) ListToolExamples(ctx context.Context, id string, max int)
 }
 
 // RunTool sends a run tool request over the connection.
-func (g *ProxyGateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
+func (g *Gateway) RunTool(ctx context.Context, id string, args map[string]any) (toolrun.RunResult, error) {
 	if g.closed.Load() {
 		return toolrun.RunResult{}, ErrConnectionClosed
 	}
@@ -209,7 +209,7 @@ func (g *ProxyGateway) RunTool(ctx context.Context, id string, args map[string]a
 }
 
 // RunChain sends a run chain request over the connection.
-func (g *ProxyGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (g *Gateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	if g.closed.Load() {
 		return toolrun.RunResult{}, nil, ErrConnectionClosed
 	}
@@ -260,7 +260,7 @@ func (g *ProxyGateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) 
 }
 
 // Close closes the underlying connection.
-func (g *ProxyGateway) Close() error {
+func (g *Gateway) Close() error {
 	g.closeMu.Lock()
 	defer g.closeMu.Unlock()
 
@@ -273,7 +273,7 @@ func (g *ProxyGateway) Close() error {
 }
 
 // request sends a request and waits for the response.
-func (g *ProxyGateway) request(ctx context.Context, msgType MessageType, payload map[string]any) (Message, error) {
+func (g *Gateway) request(ctx context.Context, msgType MessageType, payload map[string]any) (Message, error) {
 	id := fmt.Sprintf("%d", g.requestID.Add(1))
 
 	msg := Message{
@@ -310,7 +310,7 @@ func (g *ProxyGateway) request(ctx context.Context, msgType MessageType, payload
 
 // DeliverResponse delivers a response to a pending request.
 // This is called by the connection handler when a response is received.
-func (g *ProxyGateway) DeliverResponse(msg Message) error {
+func (g *Gateway) DeliverResponse(msg Message) error {
 	ch, ok := g.pending.Load(msg.ID)
 	if !ok {
 		return fmt.Errorf("%w: no pending request for ID %s", ErrProtocol, msg.ID)

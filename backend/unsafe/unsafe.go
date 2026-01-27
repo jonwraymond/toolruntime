@@ -1,4 +1,4 @@
-// Package unsafe provides an UnsafeBackend that executes code directly on the host.
+// Package unsafe provides a backend that executes code directly on the host.
 // WARNING: This backend provides no isolation. Use only for trusted code in development.
 package unsafe
 
@@ -49,7 +49,7 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// Config configures an UnsafeBackend.
+// Config configures an unsafe backend.
 type Config struct {
 	// Mode determines how code is executed.
 	// Default: ModeInterpreter
@@ -63,22 +63,22 @@ type Config struct {
 	RequireOptIn bool
 }
 
-// UnsafeBackend executes code directly on the host without isolation.
+// Backend executes code directly on the host without isolation.
 // WARNING: This backend provides no security isolation. Use only for trusted code.
-type UnsafeBackend struct {
+type Backend struct {
 	mode         ExecutionMode
 	logger       Logger
 	requireOptIn bool
 }
 
-// New creates a new UnsafeBackend with the given configuration.
-func New(cfg Config) *UnsafeBackend {
+// New creates a new unsafe backend with the given configuration.
+func New(cfg Config) *Backend {
 	mode := cfg.Mode
 	if mode == "" {
 		mode = ModeInterpreter
 	}
 
-	return &UnsafeBackend{
+	return &Backend{
 		mode:         mode,
 		logger:       cfg.Logger,
 		requireOptIn: cfg.RequireOptIn,
@@ -86,12 +86,12 @@ func New(cfg Config) *UnsafeBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *UnsafeBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendUnsafeHost
 }
 
 // Execute runs code on the host without isolation.
-func (b *UnsafeBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	// Validate request
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
@@ -148,7 +148,7 @@ func (b *UnsafeBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequ
 
 // executeInterpreter executes code using an in-process interpreter.
 // Note: This is a simplified implementation. A full implementation would use yaegi.
-func (b *UnsafeBackend) executeInterpreter(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) executeInterpreter(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	// For now, fall back to subprocess since yaegi integration is complex
 	// A full implementation would:
 	// 1. Create a yaegi interpreter
@@ -160,13 +160,15 @@ func (b *UnsafeBackend) executeInterpreter(ctx context.Context, req toolruntime.
 }
 
 // executeSubprocess executes code using `go run`.
-func (b *UnsafeBackend) executeSubprocess(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) executeSubprocess(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	// Create a temporary directory for the code
 	tmpDir, err := os.MkdirTemp("", "toolruntime-unsafe-*")
 	if err != nil {
 		return toolruntime.ExecuteResult{}, fmt.Errorf("%w: failed to create temp dir: %v", ErrSubprocessFailed, err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() {
+		_ = os.RemoveAll(tmpDir)
+	}()
 
 	// Wrap the code in a main function
 	wrappedCode := wrapCode(req.Code)

@@ -43,7 +43,7 @@ func (c *mockConnection) Send(ctx context.Context, msg Message) error {
 
 	// If there's a response queued, deliver it
 	if resp, ok := c.responses[msg.ID]; ok {
-		// The ProxyGateway will call DeliverResponse
+		// The gateway will call DeliverResponse
 		_ = resp
 	}
 
@@ -84,7 +84,7 @@ type autoRespondConnection struct {
 	messages   []Message
 	responder  func(Message) Message
 	closed     bool
-	gateway    *ProxyGateway
+	gateway    *Gateway
 }
 
 func newAutoRespondConnection(responder func(Message) Message) *autoRespondConnection {
@@ -93,7 +93,7 @@ func newAutoRespondConnection(responder func(Message) Message) *autoRespondConne
 	}
 }
 
-func (c *autoRespondConnection) SetGateway(g *ProxyGateway) {
+func (c *autoRespondConnection) SetGateway(g *Gateway) {
 	c.gateway = g
 }
 
@@ -129,12 +129,12 @@ func (c *autoRespondConnection) Close() error {
 	return nil
 }
 
-// TestProxyGatewayImplementsInterface verifies ProxyGateway satisfies ToolGateway
-func TestProxyGatewayImplementsInterface(t *testing.T) {
-	var _ toolruntime.ToolGateway = (*ProxyGateway)(nil)
+// TestGatewayImplementsInterface verifies Gateway satisfies ToolGateway
+func TestGatewayImplementsInterface(t *testing.T) {
+	var _ toolruntime.ToolGateway = (*Gateway)(nil)
 }
 
-func TestProxyGatewaySearchTools(t *testing.T) {
+func TestGatewaySearchTools(t *testing.T) {
 	conn := newAutoRespondConnection(func(msg Message) Message {
 		return Message{
 			Type: MsgResponse,
@@ -170,7 +170,7 @@ func TestProxyGatewaySearchTools(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayListNamespaces(t *testing.T) {
+func TestGatewayListNamespaces(t *testing.T) {
 	conn := newAutoRespondConnection(func(msg Message) Message {
 		return Message{
 			Type: MsgResponse,
@@ -195,7 +195,7 @@ func TestProxyGatewayListNamespaces(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayDescribeTool(t *testing.T) {
+func TestGatewayDescribeTool(t *testing.T) {
 	conn := newAutoRespondConnection(func(msg Message) Message {
 		return Message{
 			Type: MsgResponse,
@@ -221,7 +221,7 @@ func TestProxyGatewayDescribeTool(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayRunTool(t *testing.T) {
+func TestGatewayRunTool(t *testing.T) {
 	conn := newAutoRespondConnection(func(msg Message) Message {
 		return Message{
 			Type: MsgResponse,
@@ -246,7 +246,7 @@ func TestProxyGatewayRunTool(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayRunChain(t *testing.T) {
+func TestGatewayRunChain(t *testing.T) {
 	conn := newAutoRespondConnection(func(msg Message) Message {
 		return Message{
 			Type: MsgResponse,
@@ -283,7 +283,7 @@ func TestProxyGatewayRunChain(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayRunChainEmpty(t *testing.T) {
+func TestGatewayRunChainEmpty(t *testing.T) {
 	conn := newAutoRespondConnection(nil)
 	gw := New(Config{Connection: conn})
 	conn.SetGateway(gw)
@@ -298,7 +298,7 @@ func TestProxyGatewayRunChainEmpty(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayConnectionClosed(t *testing.T) {
+func TestGatewayConnectionClosed(t *testing.T) {
 	conn := newMockConnection()
 	gw := New(Config{Connection: conn})
 
@@ -314,7 +314,7 @@ func TestProxyGatewayConnectionClosed(t *testing.T) {
 	}
 }
 
-func TestProxyGatewayErrorResponse(t *testing.T) {
+func TestGatewayErrorResponse(t *testing.T) {
 	conn := newAutoRespondConnection(func(msg Message) Message {
 		return Message{
 			Type: MsgError,

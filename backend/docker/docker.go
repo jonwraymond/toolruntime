@@ -1,4 +1,4 @@
-// Package docker provides a DockerBackend that executes code in Docker containers
+// Package docker provides a backend that executes code in Docker containers
 // with configurable security profiles and resource limits.
 package docker
 
@@ -47,7 +47,7 @@ type ContainerOptions struct {
 	User string
 }
 
-// Config configures a DockerBackend.
+// Config configures a Docker backend.
 type Config struct {
 	// ImageName is the Docker image to use for execution.
 	// Default: toolruntime-sandbox:latest
@@ -67,21 +67,21 @@ type Logger interface {
 	Error(msg string, args ...any)
 }
 
-// DockerBackend executes code in Docker containers with security isolation.
-type DockerBackend struct {
+// Backend executes code in Docker containers with security isolation.
+type Backend struct {
 	imageName   string
 	seccompPath string
 	logger      Logger
 }
 
-// New creates a new DockerBackend with the given configuration.
-func New(cfg Config) *DockerBackend {
+// New creates a new Docker backend with the given configuration.
+func New(cfg Config) *Backend {
 	imageName := cfg.ImageName
 	if imageName == "" {
 		imageName = "toolruntime-sandbox:latest"
 	}
 
-	return &DockerBackend{
+	return &Backend{
 		imageName:   imageName,
 		seccompPath: cfg.SeccompPath,
 		logger:      cfg.Logger,
@@ -89,12 +89,12 @@ func New(cfg Config) *DockerBackend {
 }
 
 // Kind returns the backend kind identifier.
-func (b *DockerBackend) Kind() toolruntime.BackendKind {
+func (b *Backend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendDocker
 }
 
 // Execute runs code in a Docker container with security isolation.
-func (b *DockerBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	// Validate request
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
@@ -156,7 +156,7 @@ func (b *DockerBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequ
 }
 
 // containerOptions returns ContainerOptions based on the security profile and limits.
-func (b *DockerBackend) containerOptions(profile toolruntime.SecurityProfile, limits toolruntime.Limits) ContainerOptions {
+func (b *Backend) containerOptions(profile toolruntime.SecurityProfile, limits toolruntime.Limits) ContainerOptions {
 	opts := ContainerOptions{
 		User: "nobody:nogroup", // Always run as non-root
 	}

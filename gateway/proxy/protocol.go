@@ -1,4 +1,4 @@
-// Package proxy provides a ProxyGateway that implements ToolGateway
+// Package proxy provides a gateway that implements ToolGateway
 // by serializing requests over a connection (for cross-process/container communication).
 package proxy
 

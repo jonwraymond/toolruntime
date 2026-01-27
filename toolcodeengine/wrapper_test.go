@@ -17,7 +17,8 @@ func TestWrapToolsImplementsGateway(t *testing.T) {
 	tools := &mockTools{}
 	gw := WrapTools(tools)
 
-	var _ toolruntime.ToolGateway = gw
+	_ = gw
+	var _ toolruntime.ToolGateway = (*toolsGateway)(nil)
 }
 
 func TestWrapToolsSearchTools(t *testing.T) {
