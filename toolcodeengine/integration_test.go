@@ -167,7 +167,7 @@ func (b *errorBackend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendUnsafeHost
 }
 
-func (b *errorBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *errorBackend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if b.err != nil {
 		return toolruntime.ExecuteResult{}, b.err
 	}
@@ -242,7 +242,7 @@ func (b *capturingBackend) Kind() toolruntime.BackendKind {
 	return toolruntime.BackendUnsafeHost
 }
 
-func (b *capturingBackend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *capturingBackend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	b.capturedReq = req
 	return toolruntime.ExecuteResult{}, nil
 }
