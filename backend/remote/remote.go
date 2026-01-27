@@ -93,7 +93,7 @@ func (b *Backend) Kind() toolruntime.BackendKind {
 }
 
 // Execute runs code on the remote runtime service.
-func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
