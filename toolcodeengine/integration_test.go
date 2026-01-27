@@ -42,11 +42,11 @@ func (t *testTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, e
 	return t.examples, nil
 }
 
-func (t *testTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
+func (t *testTools) RunTool(_ context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return t.runResult, nil
 }
 
-func (t *testTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (t *testTools) RunChain(_ context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return t.chainResult, t.stepResults, nil
 }
 

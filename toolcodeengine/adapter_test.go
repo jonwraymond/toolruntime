@@ -55,11 +55,11 @@ func (m *mockTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, e
 	return m.examples, nil
 }
 
-func (m *mockTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
+func (m *mockTools) RunTool(_ context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
 	return m.runResult, nil
 }
 
-func (m *mockTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+func (m *mockTools) RunChain(_ context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
 	return m.chainResult, m.stepResults, nil
 }
 
