@@ -22,22 +22,22 @@ func WrapTools(tools toolcode.Tools) toolruntime.ToolGateway {
 }
 
 // SearchTools implements toolruntime.ToolGateway by delegating to the wrapped Tools.
-func (g *toolsGateway) SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error) {
+func (g *toolsGateway) SearchTools(_ context.Context, query string, limit int) ([]toolindex.Summary, error) {
 	return g.tools.SearchTools(query, limit)
 }
 
 // ListNamespaces implements toolruntime.ToolGateway by delegating to the wrapped Tools.
-func (g *toolsGateway) ListNamespaces(ctx context.Context) ([]string, error) {
+func (g *toolsGateway) ListNamespaces(_ context.Context) ([]string, error) {
 	return g.tools.ListNamespaces()
 }
 
 // DescribeTool implements toolruntime.ToolGateway by delegating to the wrapped Tools.
-func (g *toolsGateway) DescribeTool(ctx context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (g *toolsGateway) DescribeTool(_ context.Context, id string, level tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return g.tools.DescribeTool(id, level)
 }
 
 // ListToolExamples implements toolruntime.ToolGateway by delegating to the wrapped Tools.
-func (g *toolsGateway) ListToolExamples(ctx context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
+func (g *toolsGateway) ListToolExamples(_ context.Context, id string, maxExamples int) ([]tooldocs.ToolExample, error) {
 	return g.tools.ListToolExamples(id, maxExamples)
 }
 
