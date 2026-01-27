@@ -12,8 +12,8 @@ github.com/jonwraymond/toolindex v0.1.8 h1:wTScM2HuxY6tXHYQdC+fFiqQ7oqhLgQkeA42Y
 github.com/jonwraymond/toolindex v0.1.8/go.mod h1:Fgw7Rg6p/WYUl6ZdTYAOLDAlApbSEKGNizI8dGWdapw=
 github.com/jonwraymond/toolmodel v0.1.2 h1:v9YIEopwdxTnLV5N5VBkTNqIjKK3eKScbzM9ljRRom0=
 github.com/jonwraymond/toolmodel v0.1.2/go.mod h1:2S1YAIv2IGcwxqEaB0V4egvnY7opCdoTNknKJMg2pkE=
-github.com/jonwraymond/toolrun v0.1.8 h1:dyEcHbM/S56wHn7QZOnHhGQgBEC8yPc7qfKzkCT1FjA=
-github.com/jonwraymond/toolrun v0.1.8/go.mod h1:b8WDmgMZsEoLT+ps7sjwDq0rXw18FlsLGeN5v4mFUqY=
+github.com/jonwraymond/toolrun v0.1.9 h1:i49dZJVPV9y2EwLZyZnNIy5E9hLV3/twQZ22RyrCZJM=
+github.com/jonwraymond/toolrun v0.1.9/go.mod h1:b8WDmgMZsEoLT+ps7sjwDq0rXw18FlsLGeN5v4mFUqY=
 github.com/modelcontextprotocol/go-sdk v1.2.0 h1:Y23co09300CEk8iZ/tMxIX1dVmKZkzoSBZOpJwUnc/s=
 github.com/modelcontextprotocol/go-sdk v1.2.0/go.mod h1:6fM3LCm3yV7pAs8isnKLn07oKtB0MP9LHd3DfAcKw10=
 github.com/yosida95/uritemplate/v3 v3.0.2 h1:Ed3Oyj9yrmi9087+NczuL5BwkIc4wvTb5zIM+UJPGz4=
