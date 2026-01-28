@@ -3,6 +3,12 @@
 `toolruntime` defines the runtime and trust boundary for executing code in
 `toolcode`. It routes execution to backends with configurable security profiles.
 
+[![Docs](https://img.shields.io/badge/docs-ai--tools--stack-blue)](https://jonwraymond.github.io/ai-tools-stack/)
+
+## Deep dives
+- Design Notes: `design-notes.md`
+- User Journey: `user-journey.md`
+
 ## Motivation
 
 - **Isolation** for untrusted or semi-trusted code
@@ -44,6 +50,3 @@ rt := toolruntime.NewDefaultRuntime(toolruntime.RuntimeConfig{
 - Design Notes: `design-notes.md`
 - User Journey: `user-journey.md`
 
-!!! note "Deep dives"
-    - Design Notes: `design-notes.md`
-    - User Journey: `user-journey.md`
