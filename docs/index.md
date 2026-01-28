@@ -3,12 +3,13 @@
 `toolruntime` defines the runtime and trust boundary for executing code in
 `toolcode`. It routes execution to backends with configurable security profiles.
 
-## What this library provides
+## Key APIs
 
-- `Runtime` interface + default implementation
-- Backend abstraction (unsafe host, docker, kubernetes, gvisor, firecracker, wasm)
-- Security profiles (`dev`, `standard`, `hardened`)
-- Tool gateway surface for safe tool calls
+- `Runtime` interface
+- `DefaultRuntime` implementation
+- `Backend` interface
+- `SecurityProfile` (dev/standard/hardened)
+- `ExecuteRequest` / `ExecuteResult`
 
 ## Quickstart (dev)
 
