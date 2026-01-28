@@ -95,6 +95,12 @@ func main() {
 - For production, plan on container isolation and then stronger runtimes
   (gVisor/Kata/microVM).
 
+## Documentation
+
+- `docs/index.md` — overview
+- `docs/design-notes.md` — tradeoffs and error semantics
+- `docs/user-journey.md` — end-to-end agent workflow
+
 ## Version compatibility
 
 See `VERSIONS.md` for the authoritative, auto-generated compatibility matrix.

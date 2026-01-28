@@ -41,3 +41,5 @@ rt := toolruntime.NewDefaultRuntime(toolruntime.RuntimeConfig{
 - Runtime pipeline and profiles: `architecture.md`
 - Backend configuration: `usage.md`
 - Examples: `examples.md`
+- Design Notes: `design-notes.md`
+- User Journey: `user-journey.md`
