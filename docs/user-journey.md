@@ -4,27 +4,7 @@ This journey shows how `toolruntime` powers secure code execution in the broader
 
 ## End-to-end flow (stack view)
 
-```mermaid
-sequenceDiagram
-  participant Agent
-  participant MCP as metatools-mcp
-  participant Code as toolcode
-  participant Runtime as toolruntime
-  participant Backend as Sandbox Backend
-  participant Gateway as ToolGateway
-  participant Runner as toolrun
-
-  Agent->>MCP: execute_code
-  MCP->>Code: ExecuteCode
-  Code->>Runtime: Execute(profile, code)
-  Runtime->>Backend: Execute
-  Backend->>Gateway: RunTool/RunChain
-  Gateway->>Runner: Run
-  Runner-->>Backend: Result
-  Backend-->>Runtime: ExecuteResult
-  Runtime-->>Code: ExecuteResult
-  Code-->>MCP: Output
-```
+![Diagram](assets/diagrams/user-journey.svg)
 
 ## Step-by-step
 

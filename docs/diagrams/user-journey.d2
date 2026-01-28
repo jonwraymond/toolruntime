@@ -1,0 +1,31 @@
+direction: down
+
+style: { font-size: 14 }
+
+agent: "Agent" { shape: oval }
+
+metatools: "metatools-mcp" { shape: hexagon }
+
+code: "toolcode" { shape: page }
+
+runtime: "toolruntime" {
+  shape: cloud
+  style: { shadow: true }
+}
+
+backend: "Sandbox Backend" { shape: cloud }
+
+gateway: "ToolGateway" { shape: step }
+
+runner: "toolrun" { shape: step }
+
+agent -> metatools: "execute_code"
+metatools -> code: "ExecuteCode"
+code -> runtime: "Execute(profile, code)"
+runtime -> backend: "Execute"
+backend -> gateway: "RunTool/RunChain"
+gateway -> runner: "Run"
+runner -> backend: "Result"
+backend -> runtime: "ExecuteResult"
+runtime -> code: "ExecuteResult"
+code -> metatools: "Output"
