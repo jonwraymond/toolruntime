@@ -159,13 +159,14 @@ func (g *Gateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (tool
 	}
 
 	// Check if we have enough room for all steps
+	reserved := len(steps)
 	g.mu.Lock()
-	if g.maxToolCalls > 0 && g.callCount+len(steps) > g.maxToolCalls {
+	if g.maxToolCalls > 0 && g.callCount+reserved > g.maxToolCalls {
 		g.mu.Unlock()
 		return toolrun.RunResult{}, nil, fmt.Errorf("%w: would exceed max %d calls",
 			ErrToolCallLimitExceeded, g.maxToolCalls)
 	}
-	g.callCount += len(steps)
+	g.callCount += reserved
 	g.mu.Unlock()
 
 	// Execute
@@ -173,11 +174,32 @@ func (g *Gateway) RunChain(ctx context.Context, steps []toolrun.ChainStep) (tool
 	result, stepResults, err := g.runner.RunChain(ctx, steps)
 	duration := time.Since(start)
 
+	executed := len(stepResults)
+	if executed == 0 && err == nil {
+		executed = reserved
+	}
+	if executed > reserved {
+		executed = reserved
+	}
+
+	// Adjust reserved count if fewer steps actually executed.
+	if executed < reserved {
+		g.mu.Lock()
+		g.callCount -= reserved - executed
+		if g.callCount < 0 {
+			g.callCount = 0
+		}
+		g.mu.Unlock()
+	}
+
 	// Record the calls (approximate duration per step)
-	stepDuration := duration / time.Duration(len(steps))
+	if executed == 0 {
+		return result, stepResults, err
+	}
+	stepDuration := duration / time.Duration(executed)
 
 	g.mu.Lock()
-	for i, step := range steps {
+	for i, step := range steps[:executed] {
 		record := toolruntime.ToolCallRecord{
 			ToolID:   step.ToolID,
 			Duration: stepDuration,

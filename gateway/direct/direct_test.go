@@ -126,7 +126,7 @@ func (m *mockRunner) RunChain(ctx context.Context, steps []toolrun.ChainStep) (t
 		return toolrun.RunResult{}, nil, ctx.Err()
 	}
 	if m.chainErr != nil {
-		return toolrun.RunResult{}, nil, m.chainErr
+		return toolrun.RunResult{}, m.stepResults, m.chainErr
 	}
 	return m.chainResult, m.stepResults, nil
 }
@@ -351,6 +351,34 @@ func TestGatewayRunChain(t *testing.T) {
 		}
 		if len(stepResults) != 2 {
 			t.Errorf("RunChain() returned %d step results, want 2", len(stepResults))
+		}
+	})
+
+	t.Run("records executed steps only", func(t *testing.T) {
+		steps := []toolrun.ChainStep{
+			{ToolID: "step1"},
+			{ToolID: "step2"},
+		}
+		partialRunner := &mockRunner{
+			stepResults: []toolrun.StepResult{
+				{ToolID: "step1", Err: errors.New("failed")},
+			},
+			chainErr: errors.New("failed"),
+		}
+		partialGw := New(Config{
+			Index:  &mockIndex{},
+			Docs:   &mockDocs{},
+			Runner: partialRunner,
+		})
+
+		_, _, _ = partialGw.RunChain(ctx, steps)
+
+		records := partialGw.GetToolCalls()
+		if len(records) != 1 {
+			t.Errorf("GetToolCalls() returned %d records, want 1", len(records))
+		}
+		if len(records) > 0 && records[0].ToolID != "step1" {
+			t.Errorf("GetToolCalls()[0].ToolID = %q, want %q", records[0].ToolID, "step1")
 		}
 	})
 
