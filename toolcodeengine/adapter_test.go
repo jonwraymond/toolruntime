@@ -13,6 +13,18 @@ import (
 	"github.com/jonwraymond/toolruntime"
 )
 
+func newEngine(t *testing.T, runtime toolruntime.Runtime, profile toolruntime.SecurityProfile) *Engine {
+	t.Helper()
+	engine, err := New(Config{
+		Runtime: runtime,
+		Profile: profile,
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	return engine
+}
+
 // mockRuntime implements toolruntime.Runtime for testing
 type mockRuntime struct {
 	result      toolruntime.ExecuteResult
@@ -76,17 +88,14 @@ func TestEngineImplementsInterface(t *testing.T) {
 func TestEngineExecute(t *testing.T) {
 	rt := &mockRuntime{
 		result: toolruntime.ExecuteResult{
-			Value:  "result",
-			Stdout: "output",
-			Stderr: "",
+			Value:    "result",
+			Stdout:   "output",
+			Stderr:   "",
 			Duration: 100 * time.Millisecond,
 		},
 	}
 
-	engine := New(Config{
-		Runtime: rt,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, rt, toolruntime.ProfileDev)
 
 	ctx := context.Background()
 	params := toolcode.ExecuteParams{
@@ -115,10 +124,7 @@ func TestEngineExecuteMapsParams(t *testing.T) {
 		result: toolruntime.ExecuteResult{},
 	}
 
-	engine := New(Config{
-		Runtime: rt,
-		Profile: toolruntime.ProfileStandard,
-	})
+	engine := newEngine(t, rt, toolruntime.ProfileStandard)
 
 	ctx := context.Background()
 	params := toolcode.ExecuteParams{
@@ -153,10 +159,7 @@ func TestEngineExecuteTimeoutError(t *testing.T) {
 		err: toolruntime.ErrTimeout,
 	}
 
-	engine := New(Config{
-		Runtime: rt,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, rt, toolruntime.ProfileDev)
 
 	ctx := context.Background()
 	params := toolcode.ExecuteParams{
@@ -179,10 +182,7 @@ func TestEngineExecuteResourceLimitError(t *testing.T) {
 		err: toolruntime.ErrResourceLimit,
 	}
 
-	engine := New(Config{
-		Runtime: rt,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, rt, toolruntime.ProfileDev)
 
 	ctx := context.Background()
 	params := toolcode.ExecuteParams{
@@ -204,10 +204,7 @@ func TestEngineExecuteSandboxViolationError(t *testing.T) {
 		err: toolruntime.ErrSandboxViolation,
 	}
 
-	engine := New(Config{
-		Runtime: rt,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, rt, toolruntime.ProfileDev)
 
 	ctx := context.Background()
 	params := toolcode.ExecuteParams{

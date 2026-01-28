@@ -27,10 +27,9 @@ type Engine struct {
 }
 
 // New creates a new Engine with the given configuration.
-func New(cfg Config) *Engine {
+func New(cfg Config) (*Engine, error) {
 	if cfg.Runtime == nil {
-		// Fail fast rather than panic later on Execute.
-		panic("toolcodeengine: runtime is required")
+		return nil, toolruntime.ErrRuntimeUnavailable
 	}
 
 	profile := cfg.Profile
@@ -41,7 +40,7 @@ func New(cfg Config) *Engine {
 	return &Engine{
 		runtime: cfg.Runtime,
 		profile: profile,
-	}
+	}, nil
 }
 
 // Execute implements toolcode.Engine by delegating to the underlying runtime.

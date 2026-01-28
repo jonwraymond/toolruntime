@@ -3,10 +3,13 @@
 ## Toolcode integration
 
 ```go
-engine := toolcodeengine.New(toolcodeengine.Config{
+engine, err := toolcodeengine.New(toolcodeengine.Config{
   Runtime: rt,
   Profile: toolruntime.ProfileDev,
 })
+if err != nil {
+  return err
+}
 
 exec, _ := toolcode.NewDefaultExecutor(toolcode.Config{
   Index:  idx,

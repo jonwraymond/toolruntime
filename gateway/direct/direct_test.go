@@ -60,9 +60,9 @@ func (m *mockIndex) ListNamespaces() ([]string, error) {
 
 // mockDocs implements tooldocs.Store for testing
 type mockDocs struct {
-	docs       map[string]tooldocs.ToolDoc
-	examples   map[string][]tooldocs.ToolExample
-	descErr    error
+	docs        map[string]tooldocs.ToolDoc
+	examples    map[string][]tooldocs.ToolExample
+	descErr     error
 	examplesErr error
 }
 
@@ -90,13 +90,13 @@ func (m *mockDocs) ListExamples(id string, maxExamples int) ([]tooldocs.ToolExam
 
 // mockRunner implements toolrun.Runner for testing
 type mockRunner struct {
-	runResult    toolrun.RunResult
-	runErr       error
-	chainResult  toolrun.RunResult
-	stepResults  []toolrun.StepResult
-	chainErr     error
-	callCount    int
-	mu           sync.Mutex
+	runResult   toolrun.RunResult
+	runErr      error
+	chainResult toolrun.RunResult
+	stepResults []toolrun.StepResult
+	chainErr    error
+	callCount   int
+	mu          sync.Mutex
 }
 
 func (m *mockRunner) Run(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
@@ -146,8 +146,8 @@ func TestGatewaySearchTools(t *testing.T) {
 
 	index := &mockIndex{summaries: summaries}
 	gw := New(Config{
-		Index: index,
-		Docs:  &mockDocs{},
+		Index:  index,
+		Docs:   &mockDocs{},
 		Runner: &mockRunner{},
 	})
 
@@ -176,8 +176,8 @@ func TestGatewaySearchTools(t *testing.T) {
 	t.Run("propagates errors", func(t *testing.T) {
 		index := &mockIndex{searchErr: errors.New("search failed")}
 		gw := New(Config{
-			Index: index,
-			Docs:  &mockDocs{},
+			Index:  index,
+			Docs:   &mockDocs{},
 			Runner: &mockRunner{},
 		})
 
@@ -192,8 +192,8 @@ func TestGatewayListNamespaces(t *testing.T) {
 	namespaces := []string{"ns1", "ns2"}
 	index := &mockIndex{namespaces: namespaces}
 	gw := New(Config{
-		Index: index,
-		Docs:  &mockDocs{},
+		Index:  index,
+		Docs:   &mockDocs{},
 		Runner: &mockRunner{},
 	})
 
@@ -215,8 +215,8 @@ func TestGatewayDescribeTool(t *testing.T) {
 		},
 	}
 	gw := New(Config{
-		Index: &mockIndex{},
-		Docs:  docs,
+		Index:  &mockIndex{},
+		Docs:   docs,
 		Runner: &mockRunner{},
 	})
 
@@ -251,8 +251,8 @@ func TestGatewayListToolExamples(t *testing.T) {
 		},
 	}
 	gw := New(Config{
-		Index: &mockIndex{},
-		Docs:  docs,
+		Index:  &mockIndex{},
+		Docs:   docs,
 		Runner: &mockRunner{},
 	})
 
@@ -274,8 +274,8 @@ func TestGatewayRunTool(t *testing.T) {
 		},
 	}
 	gw := New(Config{
-		Index: &mockIndex{},
-		Docs:  &mockDocs{},
+		Index:  &mockIndex{},
+		Docs:   &mockDocs{},
 		Runner: runner,
 	})
 
@@ -304,8 +304,8 @@ func TestGatewayRunTool(t *testing.T) {
 	t.Run("records tool calls", func(t *testing.T) {
 		runner := &mockRunner{}
 		gw := New(Config{
-			Index: &mockIndex{},
-			Docs:  &mockDocs{},
+			Index:  &mockIndex{},
+			Docs:   &mockDocs{},
 			Runner: runner,
 		})
 
@@ -330,8 +330,8 @@ func TestGatewayRunChain(t *testing.T) {
 		},
 	}
 	gw := New(Config{
-		Index: &mockIndex{},
-		Docs:  &mockDocs{},
+		Index:  &mockIndex{},
+		Docs:   &mockDocs{},
 		Runner: runner,
 	})
 

@@ -24,10 +24,13 @@ rt := toolruntime.NewDefaultRuntime(toolruntime.RuntimeConfig{
   DefaultProfile: toolruntime.ProfileStandard,
 })
 
-engine := toolcodeengine.New(toolcodeengine.Config{
+engine, err := toolcodeengine.New(toolcodeengine.Config{
   Runtime: rt,
   Profile: toolruntime.ProfileStandard,
 })
+if err != nil {
+  return err
+}
 
 exec, _ := toolcode.NewDefaultExecutor(toolcode.Config{
   Index: idx,

@@ -15,6 +15,18 @@ import (
 	"github.com/jonwraymond/toolruntime/toolcodeengine"
 )
 
+func newEngine(t *testing.T, runtime toolruntime.Runtime, profile toolruntime.SecurityProfile) *toolcodeengine.Engine {
+	t.Helper()
+	engine, err := toolcodeengine.New(toolcodeengine.Config{
+		Runtime: runtime,
+		Profile: profile,
+	})
+	if err != nil {
+		t.Fatalf("New() error = %v", err)
+	}
+	return engine
+}
+
 // testTools implements toolcode.Tools for integration testing
 type testTools struct {
 	searchResults []toolindex.Summary
@@ -70,10 +82,7 @@ func TestFullStackExecution(t *testing.T) {
 	})
 
 	// Create the toolcode engine adapter
-	engine := toolcodeengine.New(toolcodeengine.Config{
-		Runtime: runtime,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, runtime, toolruntime.ProfileDev)
 
 	// Verify Engine implements toolcode.Engine
 	var _ toolcode.Engine = engine
@@ -122,10 +131,7 @@ func TestErrorMappingIntegration(t *testing.T) {
 		DefaultProfile: toolruntime.ProfileDev,
 	})
 
-	engine := toolcodeengine.New(toolcodeengine.Config{
-		Runtime: runtime,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, runtime, toolruntime.ProfileDev)
 
 	tools := &testTools{}
 	ctx := context.Background()
@@ -188,10 +194,7 @@ func TestGatewayWrappingIntegration(t *testing.T) {
 		DefaultProfile: toolruntime.ProfileDev,
 	})
 
-	engine := toolcodeengine.New(toolcodeengine.Config{
-		Runtime: runtime,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, runtime, toolruntime.ProfileDev)
 
 	tools := &testTools{
 		searchResults: []toolindex.Summary{
@@ -258,10 +261,7 @@ func TestProfilePropagation(t *testing.T) {
 		DefaultProfile: toolruntime.ProfileStandard,
 	})
 
-	engine := toolcodeengine.New(toolcodeengine.Config{
-		Runtime: runtime,
-		Profile: toolruntime.ProfileStandard,
-	})
+	engine := newEngine(t, runtime, toolruntime.ProfileStandard)
 
 	tools := &testTools{}
 	ctx := context.Background()
@@ -288,10 +288,7 @@ func TestLimitsPropagation(t *testing.T) {
 		DefaultProfile: toolruntime.ProfileDev,
 	})
 
-	engine := toolcodeengine.New(toolcodeengine.Config{
-		Runtime: runtime,
-		Profile: toolruntime.ProfileDev,
-	})
+	engine := newEngine(t, runtime, toolruntime.ProfileDev)
 
 	tools := &testTools{}
 	ctx := context.Background()

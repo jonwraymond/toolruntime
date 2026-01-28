@@ -65,10 +65,13 @@ func main() {
     DefaultProfile: toolruntime.ProfileDev,
   })
 
-  engine := toolcodeengine.New(toolcodeengine.Config{
+  engine, err := toolcodeengine.New(toolcodeengine.Config{
     Runtime: rt,
     Profile: toolruntime.ProfileDev,
   })
+  if err != nil {
+    panic(err)
+  }
 
   exec, err := toolcode.NewDefaultExecutor(toolcode.Config{
     Index:          idx,
