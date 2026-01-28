@@ -1,5 +1,7 @@
 # toolruntime
 
+[![Docs](https://img.shields.io/badge/docs-ai--tools--stack-blue)](https://jonwraymond.github.io/ai-tools-stack/)
+
 `toolruntime` is the execution runtime and trust boundary underneath
 `toolcode`. It provides:
 
