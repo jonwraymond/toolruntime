@@ -38,19 +38,19 @@ type testTools struct {
 	stepResults   []toolrun.StepResult
 }
 
-func (t *testTools) SearchTools(_ string, _ int) ([]toolindex.Summary, error) {
+func (t *testTools) SearchTools(_ context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return t.searchResults, nil
 }
 
-func (t *testTools) ListNamespaces() ([]string, error) {
+func (t *testTools) ListNamespaces(_ context.Context) ([]string, error) {
 	return t.namespaces, nil
 }
 
-func (t *testTools) DescribeTool(_ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (t *testTools) DescribeTool(_ context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return t.toolDoc, nil
 }
 
-func (t *testTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, error) {
+func (t *testTools) ListToolExamples(_ context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return t.examples, nil
 }
 

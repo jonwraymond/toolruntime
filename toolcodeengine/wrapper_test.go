@@ -146,35 +146,64 @@ func TestWrapToolsRunChain(t *testing.T) {
 
 func TestWrapToolsContextPropagation(t *testing.T) {
 	t.Helper()
-	tools := &mockTools{}
+	tools := &ctxTools{}
 	gw := WrapTools(tools)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel immediately
 
-	// Note: The wrapper passes context to tools, but mockTools doesn't use it
-	// A full test would verify context is actually propagated
-	_, _ = gw.SearchTools(ctx, "test", 10)
+	_, err := gw.SearchTools(ctx, "test", 10)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled, got %v", err)
+	}
 }
+
+type ctxTools struct{}
+
+func (c *ctxTools) SearchTools(ctx context.Context, _ string, _ int) ([]toolindex.Summary, error) {
+	return nil, ctx.Err()
+}
+
+func (c *ctxTools) ListNamespaces(ctx context.Context) ([]string, error) {
+	return nil, ctx.Err()
+}
+
+func (c *ctxTools) DescribeTool(ctx context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+	return tooldocs.ToolDoc{}, ctx.Err()
+}
+
+func (c *ctxTools) ListToolExamples(ctx context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
+	return nil, ctx.Err()
+}
+
+func (c *ctxTools) RunTool(ctx context.Context, _ string, _ map[string]any) (toolrun.RunResult, error) {
+	return toolrun.RunResult{}, ctx.Err()
+}
+
+func (c *ctxTools) RunChain(ctx context.Context, _ []toolrun.ChainStep) (toolrun.RunResult, []toolrun.StepResult, error) {
+	return toolrun.RunResult{}, nil, ctx.Err()
+}
+
+func (c *ctxTools) Println(_ ...any) {}
 
 // errTools returns errors for testing error handling
 type errTools struct {
 	err error
 }
 
-func (e *errTools) SearchTools(_ string, _ int) ([]toolindex.Summary, error) {
+func (e *errTools) SearchTools(_ context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return nil, e.err
 }
 
-func (e *errTools) ListNamespaces() ([]string, error) {
+func (e *errTools) ListNamespaces(_ context.Context) ([]string, error) {
 	return nil, e.err
 }
 
-func (e *errTools) DescribeTool(_ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (e *errTools) DescribeTool(_ context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return tooldocs.ToolDoc{}, e.err
 }
 
-func (e *errTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, error) {
+func (e *errTools) ListToolExamples(_ context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return nil, e.err
 }
 

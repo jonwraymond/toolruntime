@@ -51,19 +51,19 @@ type mockTools struct {
 	stepResults   []toolrun.StepResult
 }
 
-func (m *mockTools) SearchTools(_ string, _ int) ([]toolindex.Summary, error) {
+func (m *mockTools) SearchTools(_ context.Context, _ string, _ int) ([]toolindex.Summary, error) {
 	return m.searchResults, nil
 }
 
-func (m *mockTools) ListNamespaces() ([]string, error) {
+func (m *mockTools) ListNamespaces(_ context.Context) ([]string, error) {
 	return m.namespaces, nil
 }
 
-func (m *mockTools) DescribeTool(_ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
+func (m *mockTools) DescribeTool(_ context.Context, _ string, _ tooldocs.DetailLevel) (tooldocs.ToolDoc, error) {
 	return m.toolDoc, nil
 }
 
-func (m *mockTools) ListToolExamples(_ string, _ int) ([]tooldocs.ToolExample, error) {
+func (m *mockTools) ListToolExamples(_ context.Context, _ string, _ int) ([]tooldocs.ToolExample, error) {
 	return m.examples, nil
 }
 

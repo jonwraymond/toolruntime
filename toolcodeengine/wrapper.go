@@ -34,7 +34,7 @@ func (g *toolsGateway) SearchTools(ctx context.Context, query string, limit int)
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	return g.tools.SearchTools(query, limit)
+	return g.tools.SearchTools(ctx, query, limit)
 }
 
 // ListNamespaces implements toolruntime.ToolGateway by delegating to the wrapped Tools.
@@ -43,7 +43,7 @@ func (g *toolsGateway) ListNamespaces(ctx context.Context) ([]string, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	return g.tools.ListNamespaces()
+	return g.tools.ListNamespaces(ctx)
 }
 
 // DescribeTool implements toolruntime.ToolGateway by delegating to the wrapped Tools.
@@ -52,7 +52,7 @@ func (g *toolsGateway) DescribeTool(ctx context.Context, id string, level tooldo
 	if err := ctx.Err(); err != nil {
 		return tooldocs.ToolDoc{}, err
 	}
-	return g.tools.DescribeTool(id, level)
+	return g.tools.DescribeTool(ctx, id, level)
 }
 
 // ListToolExamples implements toolruntime.ToolGateway by delegating to the wrapped Tools.
@@ -61,7 +61,7 @@ func (g *toolsGateway) ListToolExamples(ctx context.Context, id string, maxExamp
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	return g.tools.ListToolExamples(id, maxExamples)
+	return g.tools.ListToolExamples(ctx, id, maxExamples)
 }
 
 // RunTool implements toolruntime.ToolGateway by delegating to the wrapped Tools.

@@ -7,6 +7,7 @@ This page documents the tradeoffs and error semantics behind `toolruntime`.
 - **Runtime as router.** `toolruntime` does not execute code itself; it routes requests to backends based on a security profile. This keeps policy separate from execution.
 - **Explicit security profiles.** `dev`, `standard`, and `hardened` provide predictable isolation tiers. This trades flexibility for clarity and safer defaults.
 - **Gateway boundary.** Executed code never talks to toolindex/tooldocs/toolrun directly. Instead it receives a `ToolGateway`, which preserves the trust boundary.
+- **Context propagation.** Gateway operations check `ctx.Err()` and cancel early, so timeouts and cancellations flow through to tool discovery and execution calls.
 - **Backend diversity.** Backends represent different isolation levels (host, containers, microVMs, WASM, remote). This lets deployments match security and performance needs.
 - **Limits are declarative.** `Limits` are requested by the caller, and backends report which limits were actually enforced.
 
