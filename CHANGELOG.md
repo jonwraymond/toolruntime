@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/jonwraymond/toolruntime/compare/toolruntime-v0.2.0...toolruntime-v0.2.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* honor context in stub backends ([f7afa6e](https://github.com/jonwraymond/toolruntime/commit/f7afa6e68d4bf2fcd8851f0055f1bc7bf0426809))
+* propagate context through toolruntime gateway ([7972a29](https://github.com/jonwraymond/toolruntime/commit/7972a29eb04105636b73f9bc0a4b56903b1c2a87))
+
 ## [0.2.0](https://github.com/jonwraymond/toolruntime/compare/toolruntime-v0.1.11...toolruntime-v0.2.0) (2026-01-28)
 
 
