@@ -6,6 +6,10 @@ github.com/google/jsonschema-go v0.3.0 h1:6AH2TxVNtk3IlvkkhjrtbUc4S8AvO0Xii0DxIy
 github.com/google/jsonschema-go v0.3.0/go.mod h1:r5quNTdLOYEz95Ru18zA0ydNbBuYoo9tgaYcxEYhJVE=
 github.com/jonwraymond/toolcode v0.1.11 h1:eZhYiOrJ5XWJ5tpAOGPDAE5sBAabsfEEx7ShpgjTqMc=
 github.com/jonwraymond/toolcode v0.1.11/go.mod h1:UTXveBORgBARjjW0Ay6epDjYlWOJ+HykbvoOOucgbhw=
+github.com/jonwraymond/toolcode v0.1.12-0.20260129044309-a4ba4e696ef3 h1:GwfRfJO6EZ7UTDr4OPorGhfKRFoS4I5gd0OBRzjhj2U=
+github.com/jonwraymond/toolcode v0.1.12-0.20260129044309-a4ba4e696ef3/go.mod h1:UTXveBORgBARjjW0Ay6epDjYlWOJ+HykbvoOOucgbhw=
+github.com/jonwraymond/toolcode v0.3.0 h1:8Xn62NRH6WfQGinNbq28zZFrCJkayyje2tKJefTmvyI=
+github.com/jonwraymond/toolcode v0.3.0/go.mod h1:UTXveBORgBARjjW0Ay6epDjYlWOJ+HykbvoOOucgbhw=
 github.com/jonwraymond/tooldocs v0.1.11 h1:GU9m269/UWs9kTVMRS5Q3swEnehfsC51LORJn6WWGt0=
 github.com/jonwraymond/tooldocs v0.1.11/go.mod h1:7L9Ur1bN6UlChbdGvQBtuEJ5VnihOwAIhZM01I0bflo=
 github.com/jonwraymond/toolindex v0.2.2 h1:SQ4RxyQpEpMH/3zV89B3F/kFSVjrLiPDTBb7K1/lXPY=
