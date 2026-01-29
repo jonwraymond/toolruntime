@@ -8,12 +8,12 @@ github.com/jonwraymond/toolcode v0.1.11 h1:eZhYiOrJ5XWJ5tpAOGPDAE5sBAabsfEEx7Shp
 github.com/jonwraymond/toolcode v0.1.11/go.mod h1:UTXveBORgBARjjW0Ay6epDjYlWOJ+HykbvoOOucgbhw=
 github.com/jonwraymond/tooldocs v0.1.11 h1:GU9m269/UWs9kTVMRS5Q3swEnehfsC51LORJn6WWGt0=
 github.com/jonwraymond/tooldocs v0.1.11/go.mod h1:7L9Ur1bN6UlChbdGvQBtuEJ5VnihOwAIhZM01I0bflo=
-github.com/jonwraymond/toolindex v0.1.9 h1:Q0ualXFTg18oHHSEH54Wxw1NiU6m2uWCLYslSNjntLY=
-github.com/jonwraymond/toolindex v0.1.9/go.mod h1:IVmqAsu1Dm6HAXOtnnNy+IQIU+zRYHN2lwOFFgeIdSM=
+github.com/jonwraymond/toolindex v0.2.2 h1:SQ4RxyQpEpMH/3zV89B3F/kFSVjrLiPDTBb7K1/lXPY=
+github.com/jonwraymond/toolindex v0.2.2/go.mod h1:IVmqAsu1Dm6HAXOtnnNy+IQIU+zRYHN2lwOFFgeIdSM=
 github.com/jonwraymond/toolmodel v0.1.3 h1:gkgBfOaLlz9WWwrJE5eqeLL/Z6NWbF1nSM+nq3vf0cs=
 github.com/jonwraymond/toolmodel v0.1.3/go.mod h1:2S1YAIv2IGcwxqEaB0V4egvnY7opCdoTNknKJMg2pkE=
-github.com/jonwraymond/toolrun v0.1.10 h1:FY3BzJf8QH1HZL/JHxQ3N+qBDkRATWIP6se6epj8O48=
-github.com/jonwraymond/toolrun v0.1.10/go.mod h1:1UcK7FvcJE2fvwChj0Cs+yQtPRgw6Qt2Iabgerkqmhw=
+github.com/jonwraymond/toolrun v0.2.2 h1:IZzIIBy5NfBT4As9ZrRsdqzgFA39f6eJfHzW9tEbQAw=
+github.com/jonwraymond/toolrun v0.2.2/go.mod h1:osEaTNLfjbCC9rupyzlOwz3nZONL1Nk+YL1fiE3y+ks=
 github.com/modelcontextprotocol/go-sdk v1.2.0 h1:Y23co09300CEk8iZ/tMxIX1dVmKZkzoSBZOpJwUnc/s=
 github.com/modelcontextprotocol/go-sdk v1.2.0/go.mod h1:6fM3LCm3yV7pAs8isnKLn07oKtB0MP9LHd3DfAcKw10=
 github.com/yosida95/uritemplate/v3 v3.0.2 h1:Ed3Oyj9yrmi9087+NczuL5BwkIc4wvTb5zIM+UJPGz4=
