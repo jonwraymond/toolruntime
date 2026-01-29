@@ -3,7 +3,7 @@ module github.com/jonwraymond/toolruntime
 go 1.24.4
 
 require (
-	github.com/jonwraymond/toolcode v0.1.11
+	github.com/jonwraymond/toolcode v0.3.0
 	github.com/jonwraymond/tooldocs v0.1.11
 	github.com/jonwraymond/toolindex v0.2.2
 	github.com/jonwraymond/toolmodel v0.1.3
