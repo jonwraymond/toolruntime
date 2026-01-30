@@ -6,7 +6,7 @@ import "context"
 // This is an optional interface - backends may compile on-demand.
 type ModuleLoader interface {
 	// Load compiles a WASM binary into a reusable module.
-	// The returned module reference can be used in WasmSpec.Module.
+	// The returned module reference can be used in Spec.Module.
 	Load(ctx context.Context, binary []byte) (CompiledModule, error)
 
 	// Close releases all cached modules.
@@ -36,12 +36,12 @@ type HealthChecker interface {
 }
 
 // StreamRunner provides streaming execution for long-running modules.
-// This is an optional extension to WasmRunner.
+// This is an optional extension to Runner.
 type StreamRunner interface {
-	WasmRunner
+	Runner
 
 	// RunStream executes and streams stdout/stderr as events.
 	// The returned channel is closed when execution completes.
 	// Callers should drain the channel to receive the exit event.
-	RunStream(ctx context.Context, spec WasmSpec) (<-chan StreamEvent, error)
+	RunStream(ctx context.Context, spec Spec) (<-chan StreamEvent, error)
 }

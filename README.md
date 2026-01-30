@@ -105,7 +105,7 @@ func main() {
 
 `toolruntime` defines the WASM backend contracts in `backend/wasm`:
 
-- `WasmRunner` for execution
+- `Runner` for execution
 - `ModuleLoader` for compilation/caching
 - `HealthChecker` for runtime availability
 - `StreamRunner` for streaming stdout/stderr

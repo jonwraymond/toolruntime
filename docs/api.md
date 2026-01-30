@@ -33,13 +33,13 @@ type Backend interface {
 ## WASM backend interfaces
 
 ```go
-type WasmRunner interface {
-  Run(ctx context.Context, spec WasmSpec) (WasmResult, error)
+type Runner interface {
+  Run(ctx context.Context, spec Spec) (Result, error)
 }
 
 type StreamRunner interface {
-  WasmRunner
-  RunStream(ctx context.Context, spec WasmSpec) (<-chan StreamEvent, error)
+  Runner
+  RunStream(ctx context.Context, spec Spec) (<-chan StreamEvent, error)
 }
 
 type ModuleLoader interface {
@@ -59,23 +59,23 @@ type HealthChecker interface {
 - Context: honors cancellation/deadlines and returns `ctx.Err()` when canceled.
 - Streaming: `RunStream` returns a non-nil channel when `err == nil` and closes it on completion.
 
-### WasmSpec / WasmResult
+### Spec / Result
 
 ```go
-type WasmSpec struct {
+type Spec struct {
   Module     []byte
   EntryPoint string
   Args       []string
   Env        []string
   Stdin      []byte
-  Mounts     []WasmMount
-  Resources  WasmResourceSpec
-  Security   WasmSecuritySpec
+  Mounts     []Mount
+  Resources  ResourceSpec
+  Security   SecuritySpec
   Timeout    time.Duration
   Labels     map[string]string
 }
 
-type WasmResult struct {
+type Result struct {
   ExitCode     int
   Stdout       string
   Stderr       string

@@ -29,7 +29,7 @@ This page documents the tradeoffs and error semantics behind `toolruntime`.
 ## Extension points
 
 - **Custom backends:** implement `Backend` to integrate Docker, containerd, Kubernetes, gVisor, WASM, or a remote execution service.
-- **WASM contracts:** `backend/wasm` defines `WasmRunner`, `StreamRunner`, `ModuleLoader`, and `HealthChecker` to keep runtime-specific code outside toolruntime.
+- **WASM contracts:** `backend/wasm` defines `Runner`, `StreamRunner`, `ModuleLoader`, and `HealthChecker` to keep runtime-specific code outside toolruntime.
 - **Custom gateways:** use `gateway/direct` for in-process execution or `gateway/proxy` for RPC-mediated execution.
 - **Toolcode integration:** `toolcodeengine` adapts `toolruntime` into a `toolcode.Engine`.
 

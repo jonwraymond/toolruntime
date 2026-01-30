@@ -2,8 +2,8 @@ package wasm
 
 import "time"
 
-// WasmSpec defines what to execute in a WASM sandbox and how.
-type WasmSpec struct {
+// Spec defines what to execute in a WASM sandbox and how.
+type Spec struct {
 	// Module is the compiled WASM binary (required).
 	// This can be raw .wasm bytes or a precompiled module reference.
 	Module []byte
@@ -24,13 +24,13 @@ type WasmSpec struct {
 	WorkingDir string
 
 	// Mounts defines filesystem mounts for WASI.
-	Mounts []WasmMount
+	Mounts []Mount
 
 	// Resources defines resource limits.
-	Resources WasmResourceSpec
+	Resources ResourceSpec
 
 	// Security defines security settings.
-	Security WasmSecuritySpec
+	Security SecuritySpec
 
 	// Timeout is the maximum execution duration.
 	Timeout time.Duration
@@ -39,8 +39,8 @@ type WasmSpec struct {
 	Labels map[string]string
 }
 
-// WasmMount defines a filesystem mount for WASI.
-type WasmMount struct {
+// Mount defines a filesystem mount for WASI.
+type Mount struct {
 	// HostPath is the path on the host filesystem.
 	HostPath string
 
@@ -51,8 +51,8 @@ type WasmMount struct {
 	ReadOnly bool
 }
 
-// WasmResourceSpec defines WASM resource limits.
-type WasmResourceSpec struct {
+// ResourceSpec defines WASM resource limits.
+type ResourceSpec struct {
 	// MemoryPages is the maximum memory in 64KB pages.
 	// Zero uses runtime default (typically 256 = 16MB).
 	MemoryPages uint32
@@ -66,8 +66,8 @@ type WasmResourceSpec struct {
 	StackSize uint32
 }
 
-// WasmSecuritySpec defines WASM security settings.
-type WasmSecuritySpec struct {
+// SecuritySpec defines WASM security settings.
+type SecuritySpec struct {
 	// EnableWASI enables WebAssembly System Interface.
 	// Default: true for most use cases.
 	EnableWASI bool
@@ -85,8 +85,8 @@ type WasmSecuritySpec struct {
 	EnableClock bool
 }
 
-// WasmResult captures the output of WASM execution.
-type WasmResult struct {
+// Result captures the output of WASM execution.
+type Result struct {
 	// ExitCode is the module's exit code (0 = success).
 	ExitCode int
 

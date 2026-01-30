@@ -25,7 +25,7 @@ var (
 	// ErrUnsupportedLanguage is returned when the language cannot be compiled to WASM.
 	ErrUnsupportedLanguage = errors.New("language not supported for wasm compilation")
 
-	// ErrClientNotConfigured is returned when no WasmRunner is configured.
+	// ErrClientNotConfigured is returned when no Runner is configured.
 	ErrClientNotConfigured = errors.New("wasm client not configured")
 
 	// ErrInvalidModule is returned when the WASM module is invalid.
@@ -69,7 +69,7 @@ type Config struct {
 
 	// Client is the WASM runner implementation.
 	// If nil, Execute() returns ErrClientNotConfigured.
-	Client WasmRunner
+	Client Runner
 
 	// ModuleLoader optionally pre-compiles modules.
 	// If nil, modules are compiled on-demand.
@@ -89,7 +89,7 @@ type Backend struct {
 	maxMemoryPages       int
 	enableWASI           bool
 	allowedHostFunctions []string
-	client               WasmRunner
+	client               Runner
 	moduleLoader         ModuleLoader
 	healthChecker        HealthChecker
 	logger               Logger
@@ -206,19 +206,19 @@ func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (
 	}, nil
 }
 
-// buildSpec creates a WasmSpec from an ExecuteRequest.
-func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.SecurityProfile) WasmSpec {
-	spec := WasmSpec{
+// buildSpec creates a Spec from an ExecuteRequest.
+func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.SecurityProfile) Spec {
+	spec := Spec{
 		// Note: Module bytes would need to be provided by the execution framework
 		// This is typically handled by a code compiler step before execution
 		Timeout: req.Timeout,
-		Security: WasmSecuritySpec{
+		Security: SecuritySpec{
 			EnableWASI:           b.enableWASI,
 			AllowedHostFunctions: b.allowedHostFunctions,
 			EnableNetwork:        false, // Always disabled for sandbox
 			EnableClock:          true,  // Allow timing operations
 		},
-		Resources: WasmResourceSpec{
+		Resources: ResourceSpec{
 			MemoryPages: uint32(b.maxMemoryPages),
 		},
 		Labels: map[string]string{

@@ -62,7 +62,7 @@ func TestBackendRequiresClient(t *testing.T) {
 
 func TestBackendExecuteSuccess(t *testing.T) {
 	mockClient := &mockWasmRunner{
-		result: WasmResult{
+		result: Result{
 			ExitCode: 0,
 			Stdout:   "hello world",
 			Stderr:   "",
@@ -231,16 +231,16 @@ func (m *mockGateway) RunChain(_ context.Context, _ []toolrun.ChainStep) (toolru
 var _ toolruntime.ToolGateway = (*mockGateway)(nil)
 
 type mockWasmRunner struct {
-	result WasmResult
+	result Result
 	err    error
 	delay  time.Duration
 }
 
-func (m *mockWasmRunner) Run(ctx context.Context, _ WasmSpec) (WasmResult, error) {
+func (m *mockWasmRunner) Run(ctx context.Context, _ Spec) (Result, error) {
 	if m.delay > 0 {
 		select {
 		case <-ctx.Done():
-			return WasmResult{}, ctx.Err()
+			return Result{}, ctx.Err()
 		case <-time.After(m.delay):
 		}
 	}
@@ -263,6 +263,6 @@ func (m *mockHealthChecker) Info(_ context.Context) (RuntimeInfo, error) {
 
 // Interface compliance checks
 var (
-	_ WasmRunner    = (*mockWasmRunner)(nil)
+	_ Runner    = (*mockWasmRunner)(nil)
 	_ HealthChecker = (*mockHealthChecker)(nil)
 )

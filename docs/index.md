@@ -22,7 +22,7 @@
 - `Backend` interface
 - `SecurityProfile` (dev/standard/hardened)
 - `ExecuteRequest` / `ExecuteResult`
-- `backend/wasm` interfaces (WasmRunner, ModuleLoader, HealthChecker, StreamRunner)
+- `backend/wasm` interfaces (Runner, ModuleLoader, HealthChecker, StreamRunner)
 
 ## Quickstart (dev)
 
