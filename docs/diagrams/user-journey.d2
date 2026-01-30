@@ -1,31 +1,176 @@
+# toolruntime User Journey
+# Sandbox execution with security profiles
+
 direction: down
 
-style: { font-size: 14 }
-
-agent: "Agent" { shape: oval }
-
-metatools: "metatools-mcp" { shape: hexagon }
-
-code: "toolcode" { shape: page }
-
-runtime: "toolruntime" {
-  shape: cloud
-  style: { shadow: true }
+vars: {
+  d2-config: {
+    layout-engine: elk
+    theme-id: 0
+  }
+  execution-fill: "#38a169"
+  composition-fill: "#805ad5"
+  surface-fill: "#2b6cb0"
+  sandbox-fill: "#e53e3e"
+  actor-fill: "#e2e8f0"
 }
 
-backend: "Sandbox Backend" { shape: cloud }
+classes: {
+  actor: {
+    style: {
+      fill: ${actor-fill}
+      stroke: "#a0aec0"
+      stroke-width: 2
+      font-color: "#1a202c"
+      bold: true
+    }
+  }
+  execution: {
+    style: {
+      fill: ${execution-fill}
+      stroke: "#276749"
+      stroke-width: 2
+      font-color: "#fff"
+      shadow: true
+    }
+  }
+  composition: {
+    style: {
+      fill: ${composition-fill}
+      stroke: "#6b46c1"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  surface: {
+    style: {
+      fill: ${surface-fill}
+      stroke: "#1a365d"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  sandbox: {
+    style: {
+      fill: ${sandbox-fill}
+      stroke: "#c53030"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  request-flow: {
+    style: {
+      stroke: ${surface-fill}
+      stroke-width: 2
+    }
+  }
+  exec-flow: {
+    style: {
+      stroke: ${execution-fill}
+      stroke-width: 2
+    }
+  }
+  sandbox-flow: {
+    style: {
+      stroke: ${sandbox-fill}
+      stroke-width: 2
+      stroke-dash: 3
+    }
+  }
+  result-flow: {
+    style: {
+      stroke: "#718096"
+      stroke-width: 2
+      stroke-dash: 3
+    }
+  }
+}
 
-gateway: "ToolGateway" { shape: step }
+# Title
+title: "toolruntime - Sandbox Isolation" {
+  shape: text
+  near: top-center
+  style: {
+    font-size: 24
+    bold: true
+    font-color: "#1a365d"
+  }
+}
 
-runner: "toolrun" { shape: step }
+# Actors
+agent: "🤖 Agent" {
+  shape: person
+  class: actor
+}
 
-agent -> metatools: "execute_code"
-metatools -> code: "ExecuteCode"
-code -> runtime: "Execute(profile, code)"
-runtime -> backend: "Execute"
-backend -> gateway: "RunTool/RunChain"
-gateway -> runner: "Run"
-runner -> backend: "Result"
-backend -> runtime: "ExecuteResult"
-runtime -> code: "ExecuteResult"
-code -> metatools: "Output"
+# Components
+metatools: "🔷 metatools-mcp\nMCP Surface" {
+  shape: hexagon
+  class: surface
+}
+
+code: "💻 toolcode\nOrchestration" {
+  shape: page
+  class: composition
+}
+
+runtime: "🔒 toolruntime\nSandbox Manager" {
+  shape: cloud
+  class: execution
+}
+
+backend: "☁️ Sandbox Backend\nIsolation" {
+  shape: cloud
+  class: sandbox
+}
+
+gateway: "🚪 ToolGateway\nFiltered Access" {
+  shape: step
+  class: execution
+}
+
+runner: "▶️ toolrun\nExecution" {
+  shape: step
+  class: execution
+}
+
+# Flow
+agent -> metatools: "execute_code" {
+  class: request-flow
+}
+
+metatools -> code: "ExecuteCode" {
+  class: request-flow
+}
+
+code -> runtime: "Execute(profile, code)" {
+  class: exec-flow
+}
+
+runtime -> backend: "Execute" {
+  class: sandbox-flow
+}
+
+backend -> gateway: "RunTool/RunChain" {
+  class: sandbox-flow
+}
+
+gateway -> runner: "Run" {
+  class: exec-flow
+}
+
+runner -> backend: "Result" {
+  class: result-flow
+}
+
+backend -> runtime: "ExecuteResult" {
+  class: result-flow
+}
+
+runtime -> code: "ExecuteResult" {
+  class: result-flow
+}
+
+code -> metatools: "Output" {
+  class: result-flow
+}

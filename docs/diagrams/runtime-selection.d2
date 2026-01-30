@@ -1,21 +1,182 @@
+# toolruntime Runtime Selection
+# Security profile to backend routing
+
 direction: right
 
-ExecuteRequest -> DefaultRuntime -> "Profile selection"
-
-Backends: {
-  label: "Backends"
-  style: { border-radius: 8; shadow: true }
-  "unsafe host"
-  docker
-  kubernetes
-  gvisor
-  firecracker
-  wasm
+vars: {
+  d2-config: {
+    layout-engine: elk
+    theme-id: 0
+  }
+  execution-fill: "#38a169"
+  profile-fill: "#3182ce"
+  unsafe-fill: "#e53e3e"
+  container-fill: "#805ad5"
+  vm-fill: "#d69e2e"
+  wasm-fill: "#718096"
 }
 
-"Profile selection" -> Backends."unsafe host"
-"Profile selection" -> Backends.docker
-"Profile selection" -> Backends.kubernetes
-"Profile selection" -> Backends.gvisor
-"Profile selection" -> Backends.firecracker
-"Profile selection" -> Backends.wasm
+classes: {
+  container: {
+    style: {
+      border-radius: 12
+      shadow: true
+      font-size: 14
+      bold: true
+    }
+  }
+  execution-node: {
+    style: {
+      fill: ${execution-fill}
+      stroke: "#276749"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  profile-node: {
+    style: {
+      fill: ${profile-fill}
+      stroke: "#2c5282"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  unsafe-node: {
+    style: {
+      fill: ${unsafe-fill}
+      stroke: "#c53030"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  container-node: {
+    style: {
+      fill: ${container-fill}
+      stroke: "#6b46c1"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  vm-node: {
+    style: {
+      fill: ${vm-fill}
+      stroke: "#b7791f"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  wasm-node: {
+    style: {
+      fill: ${wasm-fill}
+      stroke: "#4a5568"
+      stroke-width: 2
+      font-color: "#fff"
+    }
+  }
+  data-flow: {
+    style: {
+      stroke: "#4a5568"
+      stroke-width: 2
+    }
+  }
+  route-flow: {
+    style: {
+      stroke: "#718096"
+      stroke-width: 2
+      stroke-dash: 3
+    }
+  }
+}
+
+# Title
+title: "toolruntime - Backend Selection" {
+  shape: text
+  near: top-center
+  style: {
+    font-size: 24
+    bold: true
+    font-color: "#1a365d"
+  }
+}
+
+# Entry
+request: "📥 ExecuteRequest\nCode + Profile" {
+  shape: step
+  class: execution-node
+}
+
+runtime: "🔒 DefaultRuntime\nBackend Router" {
+  shape: hexagon
+  class: execution-node
+}
+
+profile: "🎯 Profile Selection\nSecurity Level" {
+  shape: diamond
+  class: profile-node
+}
+
+# Backends
+backends: "☁️ Backends" {
+  class: container
+  style: {
+    fill: "#f7fafc"
+    stroke: "#718096"
+  }
+
+  unsafe: "⚠️ Unsafe Host\nNo Isolation" {
+    shape: step
+    class: unsafe-node
+  }
+
+  docker: "🐳 Docker\nContainer" {
+    shape: cloud
+    class: container-node
+  }
+
+  kubernetes: "☸️ Kubernetes\nPod" {
+    shape: cloud
+    class: container-node
+  }
+
+  gvisor: "🔒 gVisor\nUser-space Kernel" {
+    shape: cloud
+    class: vm-node
+  }
+
+  firecracker: "🔥 Firecracker\nMicro-VM" {
+    shape: cloud
+    class: vm-node
+  }
+
+  wasm: "🔷 WASM\nSandbox" {
+    shape: hexagon
+    class: wasm-node
+  }
+}
+
+# Flow
+request -> runtime: "execute" {
+  class: data-flow
+}
+runtime -> profile: "route" {
+  class: data-flow
+}
+
+profile -> backends.unsafe: "dev" {
+  class: route-flow
+}
+profile -> backends.docker: "default" {
+  class: route-flow
+}
+profile -> backends.kubernetes: "k8s" {
+  class: route-flow
+}
+profile -> backends.gvisor: "secure" {
+  class: route-flow
+}
+profile -> backends.firecracker: "isolated" {
+  class: route-flow
+}
+profile -> backends.wasm: "wasm" {
+  class: route-flow
+}
