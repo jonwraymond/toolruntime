@@ -21,7 +21,55 @@ var (
 
 	// ErrContainerFailed is returned when container creation/execution fails.
 	ErrContainerFailed = errors.New("container execution failed")
+
+	// ErrClientNotConfigured is returned when no ContainerRunner is configured.
+	ErrClientNotConfigured = errors.New("docker client not configured")
+
+	// ErrContainerCreate is returned when container creation fails.
+	ErrContainerCreate = errors.New("container creation failed")
+
+	// ErrContainerStart is returned when container start fails.
+	ErrContainerStart = errors.New("container start failed")
+
+	// ErrContainerWait is returned when waiting for container completion fails.
+	ErrContainerWait = errors.New("container wait failed")
+
+	// ErrImagePull is returned when image pull fails.
+	ErrImagePull = errors.New("image pull failed")
+
+	// ErrDaemonUnavailable is returned when the Docker daemon is not reachable.
+	ErrDaemonUnavailable = errors.New("docker daemon unavailable")
+
+	// ErrResourceLimit is returned when a resource limit is exceeded.
+	ErrResourceLimit = errors.New("resource limit exceeded")
+
+	// ErrSecurityViolation is returned when a security policy is violated.
+	ErrSecurityViolation = errors.New("security policy violation")
 )
+
+// ClientError wraps client operation errors with context.
+type ClientError struct {
+	// Op is the operation that failed: "create", "start", "wait", "pull".
+	Op string
+
+	// Image is the image reference.
+	Image string
+
+	// ContainerID is the container ID if available.
+	ContainerID string
+
+	// Err is the underlying error.
+	Err error
+}
+
+func (e *ClientError) Error() string {
+	if e.ContainerID != "" {
+		return fmt.Sprintf("docker %s %s (%s): %v", e.Op, e.Image, e.ContainerID, e.Err)
+	}
+	return fmt.Sprintf("docker %s %s: %v", e.Op, e.Image, e.Err)
+}
+
+func (e *ClientError) Unwrap() error { return e.Err }
 
 // ContainerOptions represents container configuration for execution.
 type ContainerOptions struct {
@@ -56,6 +104,18 @@ type Config struct {
 	// SeccompPath is the path to a custom seccomp profile for hardened mode.
 	SeccompPath string
 
+	// Client is the container runner implementation.
+	// If nil, Execute() returns ErrClientNotConfigured.
+	Client ContainerRunner
+
+	// ImageResolver optionally resolves/pulls images before execution.
+	// If nil, images are assumed to exist locally.
+	ImageResolver ImageResolver
+
+	// HealthChecker optionally verifies daemon health before execution.
+	// If nil, health checks are skipped.
+	HealthChecker HealthChecker
+
 	// Logger is an optional logger for backend events.
 	Logger Logger
 }
@@ -69,9 +129,12 @@ type Logger interface {
 
 // Backend executes code in Docker containers with security isolation.
 type Backend struct {
-	imageName   string
-	seccompPath string
-	logger      Logger
+	imageName     string
+	seccompPath   string
+	client        ContainerRunner
+	imageResolver ImageResolver
+	healthChecker HealthChecker
+	logger        Logger
 }
 
 // New creates a new Docker backend with the given configuration.
@@ -82,9 +145,12 @@ func New(cfg Config) *Backend {
 	}
 
 	return &Backend{
-		imageName:   imageName,
-		seccompPath: cfg.SeccompPath,
-		logger:      cfg.Logger,
+		imageName:     imageName,
+		seccompPath:   cfg.SeccompPath,
+		client:        cfg.Client,
+		imageResolver: cfg.ImageResolver,
+		healthChecker: cfg.HealthChecker,
+		logger:        cfg.Logger,
 	}
 }
 
@@ -98,6 +164,11 @@ func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (
 	// Validate request
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
+	}
+
+	// Check client is configured
+	if b.client == nil {
+		return toolruntime.ExecuteResult{}, ErrClientNotConfigured
 	}
 
 	// Apply timeout
@@ -122,37 +193,114 @@ func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (
 	if profile == "" {
 		profile = toolruntime.ProfileStandard
 	}
-	opts := b.containerOptions(profile, req.Limits)
+
+	// Optional health check
+	if b.healthChecker != nil {
+		if err := b.healthChecker.Ping(ctx); err != nil {
+			return toolruntime.ExecuteResult{}, fmt.Errorf("%w: %v", ErrDaemonUnavailable, err)
+		}
+	}
+
+	// Optional image resolution
+	image := b.imageName
+	if b.imageResolver != nil {
+		resolved, err := b.imageResolver.Resolve(ctx, image)
+		if err != nil {
+			return toolruntime.ExecuteResult{}, err
+		}
+		image = resolved
+	}
+
+	// Build container spec from request
+	spec, err := b.buildSpec(image, req, profile)
+	if err != nil {
+		return toolruntime.ExecuteResult{}, err
+	}
 
 	// Log execution
 	if b.logger != nil {
 		b.logger.Info("executing in Docker container",
 			"profile", profile,
-			"image", b.imageName,
-			"networkDisabled", opts.NetworkDisabled,
-			"readOnlyRootfs", opts.ReadOnlyRootfs)
+			"image", image,
+			"networkDisabled", spec.Security.NetworkMode == "none",
+			"readOnlyRootfs", spec.Security.ReadOnlyRootfs)
 	}
 
-	// NOTE: Full Docker integration would:
-	// 1. Create container with opts
-	// 2. Copy code and gateway proxy server into container
-	// 3. Start container and wait for completion
-	// 4. Capture stdout/stderr
-	// 5. Remove container
+	// Execute via client
+	containerResult, err := b.client.Run(ctx, spec)
+	if err != nil {
+		return toolruntime.ExecuteResult{
+			Duration: time.Since(start),
+			Backend:  b.backendInfo(profile),
+		}, err
+	}
 
-	// For now, return an error indicating Docker is not implemented
-	result := toolruntime.ExecuteResult{
-		Duration: time.Since(start),
-		Backend: toolruntime.BackendInfo{
-			Kind: toolruntime.BackendDocker,
-			Details: map[string]any{
-				"image":   b.imageName,
-				"profile": string(profile),
-			},
+	// Convert to ExecuteResult
+	return toolruntime.ExecuteResult{
+		Value:    extractOutValue(containerResult.Stdout),
+		Stdout:   containerResult.Stdout,
+		Stderr:   containerResult.Stderr,
+		Duration: containerResult.Duration,
+		Backend:  b.backendInfo(profile),
+		LimitsEnforced: toolruntime.LimitsEnforced{
+			Timeout:    true,
+			Memory:     req.Limits.MemoryBytes > 0,
+			CPU:        req.Limits.CPUQuotaMillis > 0,
+			Pids:       req.Limits.PidsMax > 0,
+			ToolCalls:  true, // Enforced by gateway
+			ChainSteps: true, // Enforced by gateway
+		},
+	}, nil
+}
+
+// buildSpec creates a ContainerSpec from an ExecuteRequest.
+func (b *Backend) buildSpec(image string, req toolruntime.ExecuteRequest, profile toolruntime.SecurityProfile) (ContainerSpec, error) {
+	opts := b.containerOptions(profile, req.Limits)
+
+	builder := NewSpecBuilder(image).
+		WithTimeout(req.Timeout).
+		WithSecurity(SecuritySpec{
+			User:           opts.User,
+			ReadOnlyRootfs: opts.ReadOnlyRootfs,
+			NetworkMode:    b.networkMode(opts),
+			SeccompProfile: opts.SeccompProfile,
+		}).
+		WithResources(ResourceSpec{
+			MemoryBytes: opts.MemoryLimit,
+			CPUQuota:    opts.CPUQuota,
+			PidsLimit:   opts.PidsLimit,
+		}).
+		WithLabel("toolruntime.profile", string(profile)).
+		WithLabel("toolruntime.backend", string(toolruntime.BackendDocker))
+
+	return builder.Build()
+}
+
+// networkMode converts ContainerOptions to a network mode string.
+func (b *Backend) networkMode(opts ContainerOptions) string {
+	if opts.NetworkDisabled {
+		return "none"
+	}
+	return "bridge"
+}
+
+// backendInfo returns BackendInfo for the given profile.
+func (b *Backend) backendInfo(profile toolruntime.SecurityProfile) toolruntime.BackendInfo {
+	return toolruntime.BackendInfo{
+		Kind: toolruntime.BackendDocker,
+		Details: map[string]any{
+			"image":   b.imageName,
+			"profile": string(profile),
 		},
 	}
+}
 
-	return result, fmt.Errorf("%w: Docker backend not fully implemented", ErrDockerNotAvailable)
+// extractOutValue extracts the __out value from stdout if present.
+// This follows the toolruntime convention for capturing return values.
+func extractOutValue(_ string) any {
+	// TODO: Implement __out extraction from stdout
+	// The gateway proxy will output JSON with __out key
+	return nil
 }
 
 // containerOptions returns ContainerOptions based on the security profile and limits.
