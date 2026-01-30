@@ -29,6 +29,11 @@ type Message struct {
 }
 
 // Connection defines the interface for sending and receiving messages.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Context: Send/Receive must honor cancellation/deadlines.
+// - Errors: return ErrConnectionClosed when closed.
 type Connection interface {
 	// Send sends a message and waits for acknowledgment.
 	Send(ctx context.Context, msg Message) error
@@ -41,6 +46,10 @@ type Connection interface {
 }
 
 // Codec defines the interface for message serialization.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Errors: Encode/Decode must return errors for invalid data.
 type Codec interface {
 	// Encode encodes a message to bytes.
 	Encode(msg Message) ([]byte, error)

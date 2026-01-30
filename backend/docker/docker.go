@@ -121,6 +121,10 @@ type Config struct {
 }
 
 // Logger is the interface for logging.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Errors: logging must be best-effort and must not panic.
 type Logger interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)

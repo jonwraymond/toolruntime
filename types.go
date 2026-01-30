@@ -257,6 +257,11 @@ type BackendInfo struct {
 // ToolGateway is the interface for tool operations exposed to sandboxed code.
 // It provides a proxy for tool discovery and execution while maintaining
 // the trust boundary between the sandbox and the host.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Context: methods must honor cancellation/deadlines and return ctx.Err() when canceled.
+// - Ownership: args are read-only; results are caller-owned snapshots.
 type ToolGateway interface {
 	// SearchTools searches for tools matching the query.
 	SearchTools(ctx context.Context, query string, limit int) ([]toolindex.Summary, error)

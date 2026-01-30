@@ -9,6 +9,13 @@ import (
 // Runtime is the main interface for code execution.
 // It manages backends and routes execution requests to the appropriate backend
 // based on the security profile.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Context: must honor cancellation/deadlines and return ctx.Err() when canceled.
+// - Errors: request validation should return ErrMissingGateway/ErrInvalidRequest;
+//   backend selection failures return ErrRuntimeUnavailable/ErrBackendDenied.
+// - Ownership: requests are read-only; results are caller-owned snapshots.
 type Runtime interface {
 	// Execute runs code with the given request parameters.
 	// It selects the appropriate backend based on the security profile
@@ -35,6 +42,10 @@ type RuntimeConfig struct {
 }
 
 // Logger is an optional interface for logging.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Errors: logging must be best-effort and must not panic.
 type Logger interface {
 	Info(msg string, args ...any)
 	Warn(msg string, args ...any)
@@ -53,6 +64,10 @@ type DefaultRuntime struct {
 
 // toolCallRecorder is an optional interface implemented by gateways that
 // can expose a tool call trace.
+//
+// Contract:
+// - Concurrency: implementations must be safe for concurrent use.
+// - Ownership: returned slice is caller-owned; records are read-only snapshots.
 type toolCallRecorder interface {
 	GetToolCalls() []ToolCallRecord
 }
