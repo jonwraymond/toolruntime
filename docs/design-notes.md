@@ -9,6 +9,7 @@ This page documents the tradeoffs and error semantics behind `toolruntime`.
 - **Gateway boundary.** Executed code never talks to toolindex/tooldocs/toolrun directly. Instead it receives a `ToolGateway`, which preserves the trust boundary.
 - **Context propagation.** Gateway operations check `ctx.Err()` and cancel early, so timeouts and cancellations flow through to tool discovery and execution calls.
 - **Backend diversity.** Backends represent different isolation levels (host, containers, microVMs, WASM, remote). This lets deployments match security and performance needs.
+- **WASM isolation.** WASM runs in-process with explicit resource limits and no network by default, trading stronger isolation for lower overhead.
 - **Limits are declarative.** `Limits` are requested by the caller, and backends report which limits were actually enforced.
 
 ## Error semantics
@@ -28,6 +29,7 @@ This page documents the tradeoffs and error semantics behind `toolruntime`.
 ## Extension points
 
 - **Custom backends:** implement `Backend` to integrate Docker, containerd, Kubernetes, gVisor, WASM, or a remote execution service.
+- **WASM contracts:** `backend/wasm` defines `Runner`, `StreamRunner`, `ModuleLoader`, and `HealthChecker` to keep runtime-specific code outside toolruntime.
 - **Custom gateways:** use `gateway/direct` for in-process execution or `gateway/proxy` for RPC-mediated execution.
 - **Toolcode integration:** `toolcodeengine` adapts `toolruntime` into a `toolcode.Engine`.
 

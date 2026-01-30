@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jonwraymond/toolruntime"
@@ -24,6 +25,18 @@ var (
 
 	// ErrUnsupportedLanguage is returned when the language cannot be compiled to WASM.
 	ErrUnsupportedLanguage = errors.New("language not supported for wasm compilation")
+
+	// ErrClientNotConfigured is returned when no Runner is configured.
+	ErrClientNotConfigured = errors.New("wasm client not configured")
+
+	// ErrInvalidModule is returned when the WASM module is invalid.
+	ErrInvalidModule = errors.New("invalid wasm module")
+
+	// ErrMemoryExceeded is returned when the memory limit is exceeded.
+	ErrMemoryExceeded = errors.New("memory limit exceeded")
+
+	// ErrFuelExhausted is returned when the fuel limit is exhausted.
+	ErrFuelExhausted = errors.New("fuel limit exhausted")
 )
 
 // Logger is the interface for logging.
@@ -55,6 +68,18 @@ type Config struct {
 	// AllowedHostFunctions lists host functions the WASM module can call.
 	AllowedHostFunctions []string
 
+	// Client is the WASM runner implementation.
+	// If nil, Execute() returns ErrClientNotConfigured.
+	Client Runner
+
+	// ModuleLoader optionally pre-compiles modules.
+	// If nil, modules are compiled on-demand.
+	ModuleLoader ModuleLoader
+
+	// HealthChecker optionally verifies runtime health.
+	// If nil, health checks are skipped.
+	HealthChecker HealthChecker
+
 	// Logger is an optional logger for backend events.
 	Logger Logger
 }
@@ -65,6 +90,9 @@ type Backend struct {
 	maxMemoryPages       int
 	enableWASI           bool
 	allowedHostFunctions []string
+	client               Runner
+	moduleLoader         ModuleLoader
+	healthChecker        HealthChecker
 	logger               Logger
 }
 
@@ -85,6 +113,9 @@ func New(cfg Config) *Backend {
 		maxMemoryPages:       maxMemoryPages,
 		enableWASI:           cfg.EnableWASI,
 		allowedHostFunctions: cfg.AllowedHostFunctions,
+		client:               cfg.Client,
+		moduleLoader:         cfg.ModuleLoader,
+		healthChecker:        cfg.HealthChecker,
 		logger:               cfg.Logger,
 	}
 }
@@ -95,26 +126,174 @@ func (b *Backend) Kind() toolruntime.BackendKind {
 }
 
 // Execute runs code compiled to WebAssembly.
-func (b *Backend) Execute(_ context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (toolruntime.ExecuteResult, error) {
+	// Validate request
 	if err := req.Validate(); err != nil {
 		return toolruntime.ExecuteResult{}, err
 	}
 
+	// Check client is configured
+	if b.client == nil {
+		return toolruntime.ExecuteResult{}, ErrClientNotConfigured
+	}
+
+	// Apply timeout
+	timeout := req.Timeout
+	if timeout == 0 {
+		timeout = 30 * time.Second
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	// Check context before proceeding
+	select {
+	case <-ctx.Done():
+		return toolruntime.ExecuteResult{}, ctx.Err()
+	default:
+	}
+
 	start := time.Now()
 
-	result := toolruntime.ExecuteResult{
-		Duration: time.Since(start),
-		Backend: toolruntime.BackendInfo{
-			Kind: toolruntime.BackendWASM,
-			Details: map[string]any{
-				"runtime":        b.runtime,
-				"maxMemoryPages": b.maxMemoryPages,
-				"enableWASI":     b.enableWASI,
-			},
+	// Get security profile
+	profile := req.Profile
+	if profile == "" {
+		profile = toolruntime.ProfileStandard
+	}
+
+	// Optional health check
+	if b.healthChecker != nil {
+		if err := b.healthChecker.Ping(ctx); err != nil {
+			return toolruntime.ExecuteResult{}, fmt.Errorf("%w: %v", ErrWASMRuntimeNotAvailable, err)
+		}
+	}
+
+	// Build WASM spec from request
+	spec := b.buildSpec(req, profile)
+
+	// Log execution
+	if b.logger != nil {
+		b.logger.Info("executing in WASM sandbox",
+			"profile", profile,
+			"runtime", b.runtime,
+			"enableWASI", b.enableWASI,
+			"memoryPages", b.maxMemoryPages)
+	}
+
+	// Execute via client
+	wasmResult, err := b.client.Run(ctx, spec)
+	if err != nil {
+		return toolruntime.ExecuteResult{
+			Duration: time.Since(start),
+			Backend:  b.backendInfo(profile),
+		}, err
+	}
+
+	// Convert to ExecuteResult
+	return toolruntime.ExecuteResult{
+		Value:    extractOutValue(wasmResult.Stdout),
+		Stdout:   wasmResult.Stdout,
+		Stderr:   wasmResult.Stderr,
+		Duration: wasmResult.Duration,
+		Backend:  b.backendInfo(profile),
+		LimitsEnforced: toolruntime.LimitsEnforced{
+			Timeout:    true,
+			Memory:     spec.Resources.MemoryPages > 0,
+			CPU:        spec.Resources.FuelLimit > 0, // Fuel serves as CPU limiting
+			Pids:       false,                        // WASM doesn't have process model
+			ToolCalls:  true,                         // Enforced by gateway
+			ChainSteps: true,                         // Enforced by gateway
+		},
+	}, nil
+}
+
+// buildSpec creates a Spec from an ExecuteRequest.
+func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.SecurityProfile) Spec {
+	memoryPages := uint32(0)
+	if b.maxMemoryPages > 0 {
+		// #nosec G115 -- b.maxMemoryPages is clamped to uint32 below.
+		maxPages := uint64(b.maxMemoryPages)
+		memoryPages = clampUint32(maxPages)
+	}
+
+	spec := Spec{
+		// Note: Module bytes would need to be provided by the execution framework
+		// This is typically handled by a code compiler step before execution
+		Timeout: req.Timeout,
+		Security: SecuritySpec{
+			EnableWASI:           b.enableWASI,
+			AllowedHostFunctions: b.allowedHostFunctions,
+			EnableNetwork:        false, // Always disabled for sandbox
+			EnableClock:          true,  // Allow timing operations
+		},
+		Resources: ResourceSpec{
+			MemoryPages: memoryPages,
+		},
+		Labels: map[string]string{
+			"toolruntime.profile": string(profile),
+			"toolruntime.backend": string(toolruntime.BackendWASM),
 		},
 	}
 
-	return result, fmt.Errorf("%w: wasm backend not fully implemented", ErrWASMRuntimeNotAvailable)
+	// Apply profile-specific settings
+	switch profile {
+	case toolruntime.ProfileDev:
+		// Dev mode: more permissive
+		spec.Security.EnableNetwork = false // Still no network in WASM
+		spec.Security.EnableClock = true
+
+	case toolruntime.ProfileStandard:
+		// Standard: default restrictions
+		spec.Security.EnableNetwork = false
+		spec.Security.EnableClock = true
+
+	case toolruntime.ProfileHardened:
+		// Hardened: maximum restrictions
+		spec.Security.EnableNetwork = false
+		spec.Security.EnableClock = false // Disable clock for timing attacks
+		spec.Security.AllowedHostFunctions = nil
+	}
+
+	// Apply resource limits from request
+	if req.Limits.MemoryBytes > 0 {
+		// Convert bytes to 64KB pages
+		pages := req.Limits.MemoryBytes / (64 * 1024)
+		if pages > 0 {
+			// #nosec G115 -- pages is positive and clamped to uint32 range.
+			spec.Resources.MemoryPages = clampUint32(uint64(pages))
+		}
+	}
+
+	return spec
+}
+
+// backendInfo returns BackendInfo for the given profile.
+func (b *Backend) backendInfo(profile toolruntime.SecurityProfile) toolruntime.BackendInfo {
+	return toolruntime.BackendInfo{
+		Kind: toolruntime.BackendWASM,
+		Details: map[string]any{
+			"runtime":        b.runtime,
+			"profile":        string(profile),
+			"maxMemoryPages": b.maxMemoryPages,
+			"enableWASI":     b.enableWASI,
+		},
+	}
+}
+
+// extractOutValue extracts the __out value from stdout if present.
+// This follows the toolruntime convention for capturing return values.
+func extractOutValue(_ string) any {
+	// TODO: Implement __out extraction from stdout
+	// The gateway proxy will output JSON with __out key
+	return nil
+}
+
+func clampUint32(value uint64) uint32 {
+	if value > math.MaxUint32 {
+		return math.MaxUint32
+	}
+	// #nosec G115 -- value bounded to MaxUint32.
+	return uint32(value)
 }
 
 var _ toolruntime.Backend = (*Backend)(nil)

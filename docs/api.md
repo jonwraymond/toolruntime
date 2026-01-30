@@ -30,6 +30,61 @@ type Backend interface {
 - Context: honors cancellation/deadlines and returns `ctx.Err()` when canceled.
 - Errors: validation should return `ErrInvalidRequest` where applicable.
 
+## WASM backend interfaces
+
+```go
+type Runner interface {
+  Run(ctx context.Context, spec Spec) (Result, error)
+}
+
+type StreamRunner interface {
+  Runner
+  RunStream(ctx context.Context, spec Spec) (<-chan StreamEvent, error)
+}
+
+type ModuleLoader interface {
+  Load(ctx context.Context, binary []byte) (CompiledModule, error)
+  Close(ctx context.Context) error
+}
+
+type HealthChecker interface {
+  Ping(ctx context.Context) error
+  Info(ctx context.Context) (RuntimeInfo, error)
+}
+```
+
+### WASM contract
+
+- Concurrency: implementations are safe for concurrent use unless documented.
+- Context: honors cancellation/deadlines and returns `ctx.Err()` when canceled.
+- Streaming: `RunStream` returns a non-nil channel when `err == nil` and closes it on completion.
+
+### Spec / Result
+
+```go
+type Spec struct {
+  Module     []byte
+  EntryPoint string
+  Args       []string
+  Env        []string
+  Stdin      []byte
+  Mounts     []Mount
+  Resources  ResourceSpec
+  Security   SecuritySpec
+  Timeout    time.Duration
+  Labels     map[string]string
+}
+
+type Result struct {
+  ExitCode     int
+  Stdout       string
+  Stderr       string
+  Duration     time.Duration
+  FuelConsumed uint64
+  MemoryUsed   uint64
+}
+```
+
 ## SecurityProfile
 
 ```go
