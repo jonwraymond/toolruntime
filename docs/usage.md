@@ -22,6 +22,27 @@ res, err := rt.Execute(ctx, toolruntime.ExecuteRequest{
 })
 ```
 
+## WASM backend (interface)
+
+`toolruntime` defines the WASM backend interface in `backend/wasm`. You can
+wire any compliant runtime (wazero/wasmtime/wasmer) by supplying a
+`WasmRunner` implementation.
+
+```go
+wasmBackend := wasm.New(wasm.Config{
+  Runtime:    "wazero",
+  EnableWASI: true,
+  Client:     myWasmRunner, // implements wasm.WasmRunner
+})
+
+rt := toolruntime.NewDefaultRuntime(toolruntime.RuntimeConfig{
+  Backends: map[toolruntime.SecurityProfile]toolruntime.Backend{
+    toolruntime.ProfileStandard: wasmBackend,
+  },
+  DefaultProfile: toolruntime.ProfileStandard,
+})
+```
+
 ## Deny unsafe backend
 
 ```go

@@ -26,6 +26,7 @@ Important current status:
 - `Backend`: the isolation mechanism (unsafe host, docker, kubernetes, etc).
 - `ToolGateway`: the only allowed tool surface for untrusted code.
 - `toolcodeengine`: adapter that implements `toolcode.Engine`.
+- `backend/wasm`: interfaces for WASM sandboxes (runner, loader, health).
 
 ## Quickstart (dev only, unsafe host backend)
 
@@ -99,6 +100,18 @@ func main() {
 - Treat all schemas/docs/annotations as untrusted input.
 - For production, plan on container isolation and then stronger runtimes
   (gVisor/Kata/microVM).
+
+## WASM backend interface
+
+`toolruntime` defines the WASM backend contracts in `backend/wasm`:
+
+- `WasmRunner` for execution
+- `ModuleLoader` for compilation/caching
+- `HealthChecker` for runtime availability
+- `StreamRunner` for streaming stdout/stderr
+
+Concrete runtime bindings (for example, wazero) live outside this repo
+and can be wired into `wasm.New(...)` via the `Client` interface.
 
 ## Documentation
 

@@ -8,6 +8,12 @@ It chooses a backend based on the requested security profile.
 
 ![Diagram](assets/diagrams/runtime-selection.svg)
 
+## WASM backend
+
+The WASM backend runs in-process using a pluggable runtime (wazero/wasmtime/wasmer).
+It relies on the `backend/wasm` interfaces for module loading, health checks,
+and streaming output, keeping runtime bindings out of core `toolruntime`.
+
 
 ## Execution sequence
 
