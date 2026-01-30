@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/jonwraymond/toolruntime"
@@ -208,6 +209,15 @@ func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (
 
 // buildSpec creates a Spec from an ExecuteRequest.
 func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.SecurityProfile) Spec {
+	memoryPages := uint32(0)
+	if b.maxMemoryPages > 0 {
+		maxPages := uint64(b.maxMemoryPages)
+		if maxPages > math.MaxUint32 {
+			maxPages = math.MaxUint32
+		}
+		memoryPages = uint32(maxPages)
+	}
+
 	spec := Spec{
 		// Note: Module bytes would need to be provided by the execution framework
 		// This is typically handled by a code compiler step before execution
@@ -219,7 +229,7 @@ func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.
 			EnableClock:          true,  // Allow timing operations
 		},
 		Resources: ResourceSpec{
-			MemoryPages: uint32(b.maxMemoryPages),
+			MemoryPages: memoryPages,
 		},
 		Labels: map[string]string{
 			"toolruntime.profile": string(profile),
@@ -249,8 +259,11 @@ func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.
 	// Apply resource limits from request
 	if req.Limits.MemoryBytes > 0 {
 		// Convert bytes to 64KB pages
-		pages := req.Limits.MemoryBytes / (64 * 1024)
+		pages := uint64(req.Limits.MemoryBytes) / (64 * 1024)
 		if pages > 0 {
+			if pages > math.MaxUint32 {
+				pages = math.MaxUint32
+			}
 			spec.Resources.MemoryPages = uint32(pages)
 		}
 	}
