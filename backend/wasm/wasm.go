@@ -211,11 +211,9 @@ func (b *Backend) Execute(ctx context.Context, req toolruntime.ExecuteRequest) (
 func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.SecurityProfile) Spec {
 	memoryPages := uint32(0)
 	if b.maxMemoryPages > 0 {
+		// #nosec G115 -- b.maxMemoryPages is clamped to uint32 below.
 		maxPages := uint64(b.maxMemoryPages)
-		if maxPages > math.MaxUint32 {
-			maxPages = math.MaxUint32
-		}
-		memoryPages = uint32(maxPages)
+		memoryPages = clampUint32(maxPages)
 	}
 
 	spec := Spec{
@@ -259,12 +257,10 @@ func (b *Backend) buildSpec(req toolruntime.ExecuteRequest, profile toolruntime.
 	// Apply resource limits from request
 	if req.Limits.MemoryBytes > 0 {
 		// Convert bytes to 64KB pages
-		pages := uint64(req.Limits.MemoryBytes) / (64 * 1024)
+		pages := req.Limits.MemoryBytes / (64 * 1024)
 		if pages > 0 {
-			if pages > math.MaxUint32 {
-				pages = math.MaxUint32
-			}
-			spec.Resources.MemoryPages = uint32(pages)
+			// #nosec G115 -- pages is positive and clamped to uint32 range.
+			spec.Resources.MemoryPages = clampUint32(uint64(pages))
 		}
 	}
 
@@ -290,6 +286,14 @@ func extractOutValue(_ string) any {
 	// TODO: Implement __out extraction from stdout
 	// The gateway proxy will output JSON with __out key
 	return nil
+}
+
+func clampUint32(value uint64) uint32 {
+	if value > math.MaxUint32 {
+		return math.MaxUint32
+	}
+	// #nosec G115 -- value bounded to MaxUint32.
+	return uint32(value)
 }
 
 var _ toolruntime.Backend = (*Backend)(nil)
