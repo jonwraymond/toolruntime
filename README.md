@@ -1,133 +1,25 @@
 # toolruntime
 
-[![Docs](https://img.shields.io/badge/docs-ai--tools--stack-blue)](https://jonwraymond.github.io/ai-tools-stack/)
+> **DEPRECATED**: This repository has been deprecated. The runtime functionality has been consolidated into the `toolexec/runtime` package.
 
-`toolruntime` is the execution runtime and trust boundary underneath
-`toolcode`. It provides:
+## Migration
 
-- a backend-agnostic `Runtime` interface,
-- security profiles (`dev`, `standard`, `hardened`), and
-- a `ToolGateway` surface for safe tool access from sandboxes.
+Please migrate to `github.com/jonwraymond/toolexec/runtime`. See [MIGRATION.md](MIGRATION.md) for detailed migration instructions.
 
-It is designed to plug into:
+## Why the change?
 
-- `toolcode` via `toolruntime/toolcodeengine`, and
-- `metatools-mcp` as the runtime behind `execute_code`.
+The `toolruntime` package has been merged into `toolexec` to simplify the dependency graph and provide a more cohesive execution layer. The `toolexec/runtime` package contains all the functionality previously provided by `toolruntime`, including:
 
-Important current status:
+- Backend-agnostic `Runtime` interface
+- Security profiles (`dev`, `standard`, `hardened`)
+- `ToolGateway` surface for safe tool access from sandboxes
+- WASM backend interfaces
 
-- The `unsafe_host` backend works for dev, but it is not sandboxed.
-- Most other backends are scaffolds with policy shaping, not full isolation.
-- Snippet-to-tool wiring is still primarily enforced by `toolcode` today.
+## Timeline
 
-## Core concepts
-
-- `Runtime`: routes an `ExecuteRequest` to the chosen backend.
-- `Backend`: the isolation mechanism (unsafe host, docker, kubernetes, etc).
-- `ToolGateway`: the only allowed tool surface for untrusted code.
-- `toolcodeengine`: adapter that implements `toolcode.Engine`.
-- `backend/wasm`: interfaces for WASM sandboxes (runner, loader, health).
-
-## Quickstart (dev only, unsafe host backend)
-
-This shows the intended wiring: tool libs -> runtime -> toolcode engine ->
-toolcode executor.
-
-```go
-package main
-
-import (
-  "context"
-  "time"
-
-  "github.com/jonwraymond/toolcode"
-  "github.com/jonwraymond/tooldocs"
-  "github.com/jonwraymond/toolindex"
-  "github.com/jonwraymond/toolrun"
-  "github.com/jonwraymond/toolruntime"
-  "github.com/jonwraymond/toolruntime/backend/unsafe"
-  "github.com/jonwraymond/toolruntime/toolcodeengine"
-)
-
-func main() {
-  idx := toolindex.NewInMemoryIndex()
-  docs := tooldocs.NewInMemoryStore(tooldocs.StoreOptions{Index: idx})
-  runner := toolrun.NewRunner(toolrun.WithIndex(idx))
-
-  backend := unsafe.New(unsafe.Config{
-    Mode:         unsafe.ModeSubprocess,
-    RequireOptIn: false,
-  })
-
-  rt := toolruntime.NewDefaultRuntime(toolruntime.RuntimeConfig{
-    Backends: map[toolruntime.SecurityProfile]toolruntime.Backend{
-      toolruntime.ProfileDev: backend,
-    },
-    DefaultProfile: toolruntime.ProfileDev,
-  })
-
-  engine, err := toolcodeengine.New(toolcodeengine.Config{
-    Runtime: rt,
-    Profile: toolruntime.ProfileDev,
-  })
-  if err != nil {
-    panic(err)
-  }
-
-  exec, err := toolcode.NewDefaultExecutor(toolcode.Config{
-    Index:          idx,
-    Docs:           docs,
-    Run:            runner,
-    Engine:         engine,
-    DefaultTimeout: 10 * time.Second,
-    MaxToolCalls:   64,
-    MaxChainSteps:  8,
-  })
-  if err != nil {
-    panic(err)
-  }
-
-  _, _ = exec.ExecuteCode(context.Background(), toolcode.ExecuteParams{
-    Language: "go",
-    Code:     `__out = "ok"`,
-  })
-}
-```
-
-## Security posture guidance
-
-- `ProfileDev` + `unsafe_host` is for local development only.
-- Treat all schemas/docs/annotations as untrusted input.
-- For production, plan on container isolation and then stronger runtimes
-  (gVisor/Kata/microVM).
-
-## WASM backend interface
-
-`toolruntime` defines the WASM backend contracts in `backend/wasm`:
-
-- `Runner` for execution
-- `ModuleLoader` for compilation/caching
-- `HealthChecker` for runtime availability
-- `StreamRunner` for streaming stdout/stderr
-
-Concrete runtime bindings (for example, wazero) live outside this repo
-and can be wired into `wasm.New(...)` via the `Client` interface.
+- This repository will remain available for reference but will not receive updates.
+- New features and bug fixes will only be applied to `toolexec/runtime`.
 
 ## Documentation
 
-- `docs/index.md` — overview
-- `docs/design-notes.md` — tradeoffs and error semantics
-- `docs/user-journey.md` — end-to-end agent workflow
-
-## Version compatibility
-
-See `VERSIONS.md` for the authoritative, auto-generated compatibility matrix.
-
-
-## CI
-
-CI runs:
-
-- `go mod download`
-- `go vet ./...`
-- `go test ./...`
+For current documentation, see the [toolexec documentation](https://jonwraymond.github.io/ai-tools-stack/).
