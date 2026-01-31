@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/jonwraymond/toolruntime/compare/toolruntime-v0.2.1...toolruntime-v0.3.0) (2026-01-31)
+
+
+### Features
+
+* add wasm backend interfaces ([3e69e75](https://github.com/jonwraymond/toolruntime/commit/3e69e7515d19b402ffa5c4302a9bd92c11543c44))
+* add wasm backend interfaces ([d9b9be9](https://github.com/jonwraymond/toolruntime/commit/d9b9be9a6bde2f0e732b35aeb8e12fb9998428e1))
+* **toolruntime:** expand docker backend implementation ([d925fff](https://github.com/jonwraymond/toolruntime/commit/d925ffff5d19ba6c381efe877ccf82e1ab740b44))
+
+
+### Bug Fixes
+
+* clamp wasm memory conversion ([7839a7a](https://github.com/jonwraymond/toolruntime/commit/7839a7a59b3b83c91aa90c3866c46824c356ea8e))
+* clamp wasm memory page conversion ([7d5c16a](https://github.com/jonwraymond/toolruntime/commit/7d5c16a8d334adf5fa5c1bbb5d911a85314ef1a6))
+
 ## [0.2.1](https://github.com/jonwraymond/toolruntime/compare/toolruntime-v0.2.0...toolruntime-v0.2.1) (2026-01-29)
 
 
